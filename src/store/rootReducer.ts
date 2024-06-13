@@ -5,7 +5,7 @@ import roomReducer from "./roomSlice"
 
 const rootReducer = combineReducers({
     counter: counterReducer,
-    room:  roomReducer
+    rooms:  roomReducer
 })
 
 export default rootReducer

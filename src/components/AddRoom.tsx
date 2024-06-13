@@ -5,7 +5,7 @@ import {IRoomInfo, ICameraData} from "../types/IRoomData.type";
 import {
     Button,
     Cascader,
-    DatePicker,
+    message,
     Form,
     Input,
     Switch,
@@ -15,6 +15,7 @@ import {
     TreeSelect, Card,
 } from 'antd';
 import { CloseOutlined, PlusOutlined} from '@ant-design/icons';
+import axios, {AxiosError} from "axios";
 
 const { Option } = Select;
 
@@ -52,8 +53,9 @@ const AddRoom = () => {
         //     data
         // }
 
-        RoomService.createRoom(room).
-            then((response:any) => {
+        RoomService.createRoom(room)
+            .then((response:any) => {
+                console.log(response);
                 setRoom({
                     _id: response.data._id,
                     name: response.data.room_name,
@@ -61,9 +63,18 @@ const AddRoom = () => {
                     capacity: response.data.capacity,
                     camera: response.data.camera,
                 });
+                message.success(`Created room ${response.data.room_name} successfully.`);
                 setSubmitted(true);
-                console.log(response.data);
-        })
+                onReset();
+            })
+            .catch((e: Error) => {
+                if (axios.isAxiosError(e)) {
+                    console.log(e);
+                    message.error(`Could not create room cause ${e.request.response}`);
+                } else {
+                    console.error(e);
+                }
+            });
     };
 
     const onFinishFailed = () => {

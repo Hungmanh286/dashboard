@@ -1,13 +1,17 @@
-import {useAppSelector} from "../store/hooks";
+import {Col, Divider, Row} from 'antd';
+
+import {useAppDispatch, useAppSelector} from "../store/hooks";
 import {useState, useEffect} from "react";
 import RoomService from "../services/RoomService";
 import {IRoomInfo, IRoomData} from "../types/IRoomData.type";
 import {Room} from "./Room"
-import {Card} from "antd";
+import {initRooms} from "../store/roomSlice";
 
 
 export function RoomList() {
-    const [rooms, setRooms] = useState<Array<IRoomInfo>>([]);
+    // const [rooms, setRooms] = useState<Array<IRoomInfo>>([]);
+    const rooms: Array<IRoomInfo> = useAppSelector((state) => state.rooms.rooms)
+    const dispatch = useAppDispatch()
 
     useEffect(() => {
         retrieveRooms();
@@ -16,32 +20,58 @@ export function RoomList() {
     const retrieveRooms = () => {
         RoomService.getAllRoom()
             .then((response: any) => {
-                setRooms(response.data.data);
-                console.log(response);
+                // setRooms(response.data.data);
+                dispatch(initRooms(response.data.data))
             })
             .catch((e: Error) => {
                 console.log(e);
             });
 
     }
-    console.log(rooms);
-    const listItem = rooms.map((room: IRoomInfo) => {
-        return (
-            <div key={room._id}>
+
+    // const listItem = rooms.map((room: IRoomInfo, index) => {
+    //     return (
+    //         <div key={room._id}>
+    //             <Room
+    //                 _id={room._id}
+    //                 name={room.name}
+    //                 camera={room.camera}
+    //                 capacity={room.capacity}
+    //                 activate={room.activate}
+    //             />
+    //         </div>
+    //     );
+    // });
+
+
+    // let nCols = Math.min(3, rooms.length);
+    let nCols = 3;
+
+    const cols = []
+
+    for (let i= 0; i < rooms.length; i++) {
+        cols.push(
+            <Col key={(i).toString()} span={24 / nCols}>
                 <Room
-                    _id={room._id}
-                    name={room.name}
-                    camera={room.camera}
-                    capacity={room.capacity}
-                    activate={room.activate}
+                    _id={rooms[i]._id}
+                    name={rooms[i].name}
+                    camera={rooms[i].camera}
+                    capacity={rooms[i].capacity}
+                    activate={rooms[i].activate}
                 />
-            </div>
-        );
-    });
+            </Col>)
+    }
 
     return (
-        <div>
-            {listItem}
-        </div>
+        <>
+            <Divider orientation="left">Dashboard</Divider>
+            <div style={{
+                padding: '20px'
+            }}>
+                <Row gutter={[16, 16]}>
+                    {cols}
+                </Row>
+            </div>
+        </>
     )
 }
