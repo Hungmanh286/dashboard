@@ -9,7 +9,6 @@ import {initRooms} from "../store/roomSlice";
 
 
 export function RoomList() {
-    // const [rooms, setRooms] = useState<Array<IRoomInfo>>([]);
     const rooms: Array<IRoomInfo> = useAppSelector((state) => state.rooms.rooms)
     const dispatch = useAppDispatch()
 
@@ -20,7 +19,8 @@ export function RoomList() {
     const retrieveRooms = () => {
         RoomService.getAllRoom()
             .then((response: any) => {
-                // setRooms(response.data.data);
+                console.log(response);
+
                 dispatch(initRooms(response.data.data))
             })
             .catch((e: Error) => {
@@ -30,6 +30,7 @@ export function RoomList() {
     }
 
     const listItem = rooms.map((room: IRoomInfo, index) => {
+        console.log(room);
         return (
             <div key={room._id}>
                 <Room
@@ -37,43 +38,18 @@ export function RoomList() {
                     name={room.name}
                     camera={room.camera}
                     capacity={room.capacity}
-                    activate={room.activate}
+                    active={room.active}
                 />
             </div>
         );
     });
-
-
-    // let nCols = Math.min(3, rooms.length);
-    let nCols = 3;
-
-    const cols = []
-
-    for (let i = 0; i < rooms.length; i++) {
-        cols.push(
-            <Col key={(i).toString()} span={24 / nCols}>
-                <Room
-                    _id={rooms[i]._id}
-                    name={rooms[i].name}
-                    camera={rooms[i].camera}
-                    capacity={rooms[i].capacity}
-                    activate={rooms[i].activate}
-                />
-            </Col>)
-    }
 
     return (
         <div style={{
             padding: '25px'
         }}>
             <Divider orientation="left">Dashboard</Divider>
-            {/*<div style={{*/}
-            {/*    padding: '20px'*/}
-            {/*}}>*/}
-            {/*    <Row gutter={[16, 16]}>*/}
-            {/*        {cols}*/}
-            {/*    </Row>*/}
-            {/*</div>*/}
+
             <Flex wrap gap="small">
                 {listItem}
             </Flex>

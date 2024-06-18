@@ -12,7 +12,7 @@ import {
     InputNumber,
     Mentions,
     Select,
-    TreeSelect, Card,
+    TreeSelect, Card, Divider,
 } from 'antd';
 import { CloseOutlined, PlusOutlined} from '@ant-design/icons';
 import axios, {AxiosError} from "axios";
@@ -26,7 +26,7 @@ const AddRoom = () => {
         name: '',
         capacity: 50,
         camera: Array<ICameraData>(),
-        activate: true
+        active: true
     };
 
     const [room, setRoom] = useState<IRoomInfo>(initialRoomState);
@@ -59,7 +59,7 @@ const AddRoom = () => {
                 setRoom({
                     _id: response.data._id,
                     name: response.data.room_name,
-                    activate: response.data.activate,
+                    active: response.data.activate,
                     capacity: response.data.capacity,
                     camera: response.data.camera,
                 });
@@ -91,7 +91,11 @@ const AddRoom = () => {
     };
 
     return (
-        <Card>
+        <div style={{
+            padding: '25px 100px'
+        }}>
+            <Divider orientation="left">Add room</Divider>
+            <Card>
             <Form
                 form={form}
                 onFinish={onFinish}
@@ -135,13 +139,15 @@ const AddRoom = () => {
 
                 <Form.Item<IRoomInfo>
                     label="Active"
-                    name="activate"
+                    name="active"
+                    valuePropName="checked"
+                    initialValue={true}
                     rules={[
                         { required: true, message: 'Please choose status of the room!'
                         },
                     ]}
                 >
-                    <Switch defaultChecked={false} />
+                    <Switch checkedChildren="Yes" unCheckedChildren="No" />
                 </Form.Item>
 
                 <Form.List name="camera">
@@ -253,6 +259,7 @@ const AddRoom = () => {
 
             </Form>
         </Card>
+        </div>
     )
 }
 

@@ -18,7 +18,7 @@ export interface IRoomInfo {
     name: string
     camera?: Array<ICameraData>
     capacity: number
-    activate: boolean
+    active: boolean
 }
 
 export interface IRoomData extends IRoomInfo {

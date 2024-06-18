@@ -26,7 +26,7 @@ export const roomSlice = createSlice({
         },
         removeRoom: (state, action: PayloadAction<IRoomInfo>) => {
             let index = state.rooms.findIndex((room) => {
-                return room._id == action.payload._id;
+                return room._id === action.payload._id;
             });
             console.log("Find: " + index);
             state.rooms.splice(index, 1);

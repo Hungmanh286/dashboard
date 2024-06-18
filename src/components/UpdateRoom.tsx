@@ -38,7 +38,7 @@ export const UpdateRoom = (room_: IRoomInfo) => {
         name: '',
         capacity: 50,
         camera: Array<ICameraData>(),
-        activate: true
+        active: true
     };
 
     const [form] = Form.useForm<IRoomInfo>();
@@ -58,6 +58,17 @@ export const UpdateRoom = (room_: IRoomInfo) => {
     useEffect(() => {
         form.setFieldsValue(room);
     }, []);
+
+    // const onValuesChange = (changedValues: IRoomInfo, allValues: IRoomInfo) => {
+    //     // Compare the changed values with the initial values
+    //     const changedFields = Object.keys(changedValues);
+    //     const hasChanges = changedFields.some(field => allValues.field !== room_[field]);
+    //
+    //     // If there are changes, do the dispatch
+    //     if (hasChanges) {
+    //         //dispatch go here
+    //     }
+    // };
 
     const onFinish = () => {
         console.log(room);
@@ -105,7 +116,7 @@ export const UpdateRoom = (room_: IRoomInfo) => {
     }
 
     const onReset = () => {
-        form.resetFields();
+        form.setFieldsValue(room_);
     };
 
     const showModal = () => {
@@ -133,23 +144,25 @@ export const UpdateRoom = (room_: IRoomInfo) => {
             >
                 <Card>
                     <Form
+                        disabled={true}
                         form={form}
                         onFinish={onFinish}
                         onFinishFailed={onFinishFailed}
                         labelCol={{
-                            flex: '110px',
+                            // flex: '110px',
                             span: 8
                         }}
                         labelAlign="left"
                         labelWrap
                         wrapperCol={{
                             // flex: 1,
-                            span: 16
+                            span: 24
                         }}
                         colon={false}
                         style={{
                             maxWidth: 1000,
                         }}
+                        // layout="vertical"
                     >
                         <Form.Item<IRoomInfo>
                             label="Room name"
@@ -177,32 +190,33 @@ export const UpdateRoom = (room_: IRoomInfo) => {
 
                         <Form.Item<IRoomInfo>
                             label="Active"
-                            name="activate"
+                            name="active"
+                            valuePropName="checked"
+                            initialValue={room.active}
                             rules={[
                                 {
                                     required: true, message: 'Please choose status of the room!'
                                 },
                             ]}
                         >
-                            <Checkbox />
+                            <Switch checkedChildren="Yes" unCheckedChildren="No"/>
                         </Form.Item>
 
                         <Form.List name="camera">
                             {(fields, {add, remove}) => (
                                 <div style={{display: 'flex', flexDirection: 'column', rowGap: 16}}>
-                                    {/*<>*/}
                                     {fields.map((field) => (
                                         <Card
                                             size="small"
                                             title={`Camera ${field.name + 1}`}
                                             key={field.key}
-                                            extra={
-                                                <CloseOutlined
-                                                    onClick={() => {
-                                                        remove(field.name);
-                                                    }}
-                                                />
-                                            }
+                                            // extra={
+                                            //     <CloseOutlined
+                                            //         onClick={() => {
+                                            //             remove(field.name);
+                                            //         }}
+                                            //     />
+                                            // }
                                         >
                                             <Form.Item
                                                 label="Camera id"
@@ -280,30 +294,30 @@ export const UpdateRoom = (room_: IRoomInfo) => {
                                             </Form.Item>
                                         </Card>
                                     ))}
-                                    <Form.Item>
-                                        <Button type="dashed"
-                                                onClick={() => add()}
-                                                style={{width: '100%'}}
-                                                block
-                                                icon={<PlusOutlined/>}
-                                        >
-                                            Add Camera
-                                        </Button>
-                                    </Form.Item>
+                                    {/*<Form.Item>*/}
+                                    {/*    <Button type="dashed"*/}
+                                    {/*            onClick={() => add()}*/}
+                                    {/*            style={{width: '100%'}}*/}
+                                    {/*            block*/}
+                                    {/*            icon={<PlusOutlined/>}*/}
+                                    {/*    >*/}
+                                    {/*        Add Camera*/}
+                                    {/*    </Button>*/}
+                                    {/*</Form.Item>*/}
                                 </div>
                             )}
                         </Form.List>
 
-                        <Form.Item>
-                            <Space>
-                                <Button type="primary" htmlType="submit">
-                                    Update
-                                </Button>
-                                <Button htmlType="button" onClick={onReset}>
-                                    Reset
-                                </Button>
-                            </Space>
-                        </Form.Item>
+                        {/*<Form.Item>*/}
+                        {/*    <Space>*/}
+                        {/*        <Button type="primary" htmlType="submit">*/}
+                        {/*            Update*/}
+                        {/*        </Button>*/}
+                        {/*        <Button htmlType="button" onClick={onReset}>*/}
+                        {/*            Reset*/}
+                        {/*        </Button>*/}
+                        {/*    </Space>*/}
+                        {/*</Form.Item>*/}
 
                     </Form>
                 </Card>

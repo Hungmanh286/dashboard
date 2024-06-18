@@ -73,7 +73,7 @@ export const RoomChart = (room_: IRoomInfo) => {
         setLoading(true);
 
         retrieveData(startDate.getTime()/1000, endDate.getTime()/1000).then((r_config: LineConfig) => {
-            console.log(r_config);
+            // console.log(r_config);
             setData(r_config);
             setLoading(false);
         });
@@ -83,7 +83,7 @@ export const RoomChart = (room_: IRoomInfo) => {
         const config: LineConfig = initialDataLine;
         try {
             let response: any = await RoomService.getAnalyzedRoom(room_id, start_time, end_time);
-            console.log(response);
+            // console.log(response);
             config.data = response.data.data;
         } catch (error) {
             console.log(error);
@@ -101,8 +101,8 @@ export const RoomChart = (room_: IRoomInfo) => {
     };
 
     const onChangeDateRange = (value: any, dateString: string[]) => {
-        console.log('Selected Time: ', value);
-        console.log('Formatted Selected Time: ', dateString);
+        // console.log('Selected Time: ', value);
+        // console.log('Formatted Selected Time: ', dateString);
         if (dateString.length > 1 && dateString[0] && dateString[1]) {
             setLoading(true);
             let start_date = new Date(dateString[0] + " 00:00:00");
@@ -112,10 +112,10 @@ export const RoomChart = (room_: IRoomInfo) => {
             // end_date.setDate(end_date.getDate() + 1);
             let start_time = start_date.getTime() / 1000;
             let end_time = end_date.getTime() / 1000;
-            console.log(start_time);
-            console.log(end_time);
+            // console.log(start_time);
+            // console.log(end_time);
             retrieveData(start_time, end_time).then((r_config: LineConfig) => {
-                console.log(r_config);
+                // console.log(r_config);
                 setData(r_config);
                 setLoading(false);
             });
