@@ -1,4 +1,4 @@
-import {Col, Divider, Row} from 'antd';
+import {Col, Divider, Row, Flex} from 'antd';
 
 import {useAppDispatch, useAppSelector} from "../store/hooks";
 import {useState, useEffect} from "react";
@@ -29,19 +29,19 @@ export function RoomList() {
 
     }
 
-    // const listItem = rooms.map((room: IRoomInfo, index) => {
-    //     return (
-    //         <div key={room._id}>
-    //             <Room
-    //                 _id={room._id}
-    //                 name={room.name}
-    //                 camera={room.camera}
-    //                 capacity={room.capacity}
-    //                 activate={room.activate}
-    //             />
-    //         </div>
-    //     );
-    // });
+    const listItem = rooms.map((room: IRoomInfo, index) => {
+        return (
+            <div key={room._id}>
+                <Room
+                    _id={room._id}
+                    name={room.name}
+                    camera={room.camera}
+                    capacity={room.capacity}
+                    activate={room.activate}
+                />
+            </div>
+        );
+    });
 
 
     // let nCols = Math.min(3, rooms.length);
@@ -49,7 +49,7 @@ export function RoomList() {
 
     const cols = []
 
-    for (let i= 0; i < rooms.length; i++) {
+    for (let i = 0; i < rooms.length; i++) {
         cols.push(
             <Col key={(i).toString()} span={24 / nCols}>
                 <Room
@@ -63,15 +63,20 @@ export function RoomList() {
     }
 
     return (
-        <>
+        <div style={{
+            padding: '25px'
+        }}>
             <Divider orientation="left">Dashboard</Divider>
-            <div style={{
-                padding: '20px'
-            }}>
-                <Row gutter={[16, 16]}>
-                    {cols}
-                </Row>
-            </div>
-        </>
+            {/*<div style={{*/}
+            {/*    padding: '20px'*/}
+            {/*}}>*/}
+            {/*    <Row gutter={[16, 16]}>*/}
+            {/*        {cols}*/}
+            {/*    </Row>*/}
+            {/*</div>*/}
+            <Flex wrap gap="small">
+                {listItem}
+            </Flex>
+        </div>
     )
 }

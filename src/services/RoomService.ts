@@ -26,8 +26,13 @@ const getAnalyzedRooms = () => {
     return http.post<IRoomData[]>('/room/analyzed')
 }
 
-const getAnalyzedRoom = (id: string) => {
-    return http.get<IFrameData[]>(`/room/analyzed/${id}`)
+const getAnalyzedRoom = async (id: string, start_time?: number, end_time?:number) => {
+    let query = "?";
+    if (start_time)
+        query += `&start_time=${start_time}`;
+    if (end_time)
+        query += `&end_time=${end_time}`;
+    return http.get<IFrameData[]>(`/room/analyzed/${id}${query}`)
 }
 
 const getImageRoom = async (id: string, cam_id: string)=> {

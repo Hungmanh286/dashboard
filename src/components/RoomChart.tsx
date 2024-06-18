@@ -1,36 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import {Button, DatePicker, Modal} from "antd";
+import {Line, LineConfig} from '@ant-design/charts';
+import dayjs from 'dayjs';
+import {format} from 'fecha';
 
-import { Line, LineConfig } from '@ant-design/charts';
-
-import {ICameraData, IRoomData, IRoomInfo} from "../types/IRoomData.type";
+import {ICameraData, IFrameData, IRoomData, IRoomInfo} from "../types/IRoomData.type";
 import RoomService from "../services/RoomService";
 
-// import {
-//     Chart as ChartJS,
-//     CategoryScale,
-//     LinearScale,
-//     PointElement,
-//     LineElement,
-//     Title,
-//     Tooltip,
-//     Legend,
-// } from 'chart.js';
-// import { Line } from 'react-chartjs-2';
-
-// ChartJS.register(
-//     CategoryScale,
-//     LinearScale,
-//     PointElement,
-//     LineElement,
-//     Title,
-//     Tooltip,
-//     Legend
-// );
-// import type { ChartData, ChartOptions } from 'chart.js';
 
 
-const { RangePicker } = DatePicker;
+const {RangePicker} = DatePicker;
 
 export interface DataLine {
     data: any[]
@@ -46,26 +25,36 @@ export interface OptionLine {
     plugins: any
 }
 
-// interface LineProps {
-//     options: ChartOptions<'line'>;
-//     data: ChartData<'line'>;
-// }
+// const dateFormat = 'YYYY-MM-DD';
 
 export const RoomChart = (room_: IRoomInfo) => {
     const room_id = room_._id == null ? '' : room_._id.toString();
     const room_name = room_.name
-    const [open, setOpen] = React.useState<boolean>(false);
-    const [loading, setLoading] = React.useState<boolean>(true);
-    const [dataRoom, setDataRoom] = useState<IRoomData>();
-    // const [lineConfig, setLineConfig] = useState<LineProps>
+    const [open, setOpen] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(true);
+    // const [dataRoom, setDataRoom] = useState<IRoomData>();
+
+    const initialStartDate = new Date();
+    initialStartDate.setDate(initialStartDate.getDate() - 1);
+    initialStartDate.setHours(0,0,0,0);
+
+    const initialEndDate = new Date();
+    initialEndDate.setHours(23,59,59,0);
+    const [startDate, setStartDate] = useState<Date>(initialStartDate);
+    const [endDate, setEndDate] = useState<Date>(initialEndDate);
 
     const initialDataLine = {
-        data: [],
-        xField: 'time',
+        data: Array<IFrameData>(),
+        xField: (d: IFrameData) => new Date(d.time * 1000),
         yField: 'number_people',
+        axis: {x: {title: false, size: 40}, y: {title: false, size: 36}},
         point: {
             shapeField: 'point',
-            sizeField: 4,
+            sizeField: 2,
+        },
+        slider: {
+            x: {labelFormatter: (d: Date) => format(d, 'YYYY/MM/DD')},
+            y: {labelFormatter: '~s'},
         },
         interaction: {
             tooltip: {
@@ -73,66 +62,34 @@ export const RoomChart = (room_: IRoomInfo) => {
             },
         },
         style: {
-            lineWidth: 2,
+            lineWidth: 1,
         },
     }
 
-    // const initialDataLine = {
-    //     options: {
-    //         responsive: true,
-    //         plugins: {
-    //             legend: {
-    //                 position: 'top' as const,
-    //             },
-    //             title: {
-    //                 display: true,
-    //                 text: 'Chart.js Line Chart',
-    //             },
-    //         },
-    //     },
-    //     data: {
-    //         labels: [],
-    //         datasets: []
-    //     }
-    // }
-
     const [data, setData] = useState<LineConfig>(initialDataLine);
-    // const [data, setData] = useState<LineProps>(initialDataLine);
 
     const showChart = () => {
         setOpen(true);
         setLoading(true);
 
-        retrieveData();
-
-        setLoading(false);
-
+        retrieveData(startDate.getTime()/1000, endDate.getTime()/1000).then((r_config: LineConfig) => {
+            console.log(r_config);
+            setData(r_config);
+            setLoading(false);
+        });
     }
 
-    const options = {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'top' as const,
-            },
-            title: {
-                display: true,
-                text: 'Chart.js Line Chart',
-            },
-        },
-    };
+    const retrieveData = async (start_time?:number, end_time?:number): Promise<LineConfig> => {
+        const config: LineConfig = initialDataLine;
+        try {
+            let response: any = await RoomService.getAnalyzedRoom(room_id, start_time, end_time);
+            console.log(response);
+            config.data = response.data.data;
+        } catch (error) {
+            console.log(error);
+        }
 
-    const retrieveData = () => {
-        RoomService.getAnalyzedRoom(room_id).then((response: any) => {
-            const config:LineConfig = initialDataLine;
-            config.data = response.data.data.series_data;
-            setData(config);
-
-            // console.log(response);
-        })
-        .catch((e: Error) => {
-            console.log(e);
-        });
+        return config;
     }
 
     const handleCancel = () => {
@@ -143,20 +100,53 @@ export const RoomChart = (room_: IRoomInfo) => {
         setOpen(false);
     };
 
+    const onChangeDateRange = (value: any, dateString: string[]) => {
+        console.log('Selected Time: ', value);
+        console.log('Formatted Selected Time: ', dateString);
+        if (dateString.length > 1 && dateString[0] && dateString[1]) {
+            setLoading(true);
+            let start_date = new Date(dateString[0] + " 00:00:00");
+            let end_date = new Date(dateString[1] + " 23:59:59");
+            setStartDate(start_date);
+            setEndDate(end_date);
+            // end_date.setDate(end_date.getDate() + 1);
+            let start_time = start_date.getTime() / 1000;
+            let end_time = end_date.getTime() / 1000;
+            console.log(start_time);
+            console.log(end_time);
+            retrieveData(start_time, end_time).then((r_config: LineConfig) => {
+                console.log(r_config);
+                setData(r_config);
+                setLoading(false);
+            });
+        }
+    }
+
     return (
         <>
             <Button type="primary" onClick={showChart}>
                 More
             </Button>
-            <Modal
-                title={<p>Room {room_name}</p>}
-                loading={loading}
-                open={open}
-                onCancel={handleCancel}
-                onOk={handleOk}
+            <Modal style={{
+                flex: 'revert',
+                width: "100%",
+            }}
+                   title={<p>Room {room_name}</p>}
+                   loading={loading}
+                   open={open}
+                   onCancel={handleCancel}
+                   onOk={handleOk}
+                   centered
             >
+                <RangePicker
+                    format="YYYY-MM-DD"
+                    onChange={onChangeDateRange}
+                    defaultValue={[dayjs(startDate), dayjs(endDate)]}
+                />
                 <div>
-                    <Line {...data} />
+                    {(data.data.length > 0) ?
+                        <Line {...data} /> : <Line></Line>
+                    }
                     {/*<Line data={data.data} />*/}
                 </div>
             </Modal>
