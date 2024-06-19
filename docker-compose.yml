@@ -6,6 +6,7 @@ services:
     container_name: room-dashboard-v1
     image: 'roomdashboard:1.0.0'
     environment:
-      - FRONT_END_PORT=9091
+      - PORT=9091
+      - REACT_APP_API_URL=http://0.0.0.0:8656/api/counting/v1
     ports:
-      - "9091:3000"
+      - "9091:9091"

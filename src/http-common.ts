@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export default axios.create({
-    baseURL: "http://0.0.0.0:8656/api/counting/v1",
+    baseURL: process.env.REACT_APP_API_URL,
     headers: {
         "Content-type": "application/json"
     }
