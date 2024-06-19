@@ -1,21 +1,20 @@
-import React, {useState, ChangeEvent} from "react";
+import React, {useState} from "react";
 import RoomService from "../services/RoomService";
 import {IRoomInfo, ICameraData} from "../types/IRoomData.type";
 
 import {
     Button,
-    Cascader,
     message,
     Form,
     Input,
     Switch,
     InputNumber,
-    Mentions,
     Select,
-    TreeSelect, Card, Divider,
+    Card,
+    Divider,
 } from 'antd';
 import { CloseOutlined, PlusOutlined} from '@ant-design/icons';
-import axios, {AxiosError} from "axios";
+import axios from "axios";
 
 const { Option } = Select;
 
@@ -30,41 +29,33 @@ const AddRoom = () => {
     };
 
     const [room, setRoom] = useState<IRoomInfo>(initialRoomState);
-    const [submitted, setSubmitted] = useState<boolean>(false);
+    // const [submitted, setSubmitted] = useState<boolean>(false);
 
     const handleWatchForm = Form.useWatch((values) => {
         setRoom(values)
     }, form)
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        console.log(e.target);
-        const {name, value} = e.target;
-        setRoom({...room, [name]: value});
-    }
+
+    // const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     console.log(e.target);
+    //     const {name, value} = e.target;
+    //     setRoom({...room, [name]: value});
+    // }
 
     const onFinish = () => {
         console.log(room);
-        // const data = {
-        //     room_name: room.name,
-        //     capacity: room.capacity,
-        //     activate: room.activate,
-        // };
-
-        // if (room.camera != undefined) {
-        //     data
-        // }
 
         RoomService.createRoom(room)
             .then((response:any) => {
-                console.log(response);
+                // console.log(response);
                 setRoom({
                     _id: response.data._id,
-                    name: response.data.room_name,
-                    active: response.data.activate,
+                    name: response.data.name,
+                    active: response.data.active,
                     capacity: response.data.capacity,
                     camera: response.data.camera,
                 });
                 message.success(`Created room ${response.data.room_name} successfully.`);
-                setSubmitted(true);
+                // setSubmitted(true);
                 onReset();
             })
             .catch((e: Error) => {
@@ -80,11 +71,6 @@ const AddRoom = () => {
     const onFinishFailed = () => {
         console.log('Submit failed!');
     };
-
-    const newRoom = ()=> {
-        setRoom(initialRoomState);
-        setSubmitted(false);
-    }
 
     const onReset = () => {
         form.resetFields();
