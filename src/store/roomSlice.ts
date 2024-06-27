@@ -33,7 +33,14 @@ export const roomSlice = createSlice({
         },
         initRooms: (state, action: PayloadAction<IRoomInfo[]>) => {
             state.rooms = action.payload
-        }
+        },
+        updateRoom: (state, action: PayloadAction<IRoomInfo>) => {
+            let index = state.rooms.findIndex((room) => {
+                return room._id === action.payload._id;
+            });
+
+            state.rooms[index] = action.payload;
+        },
     }
 })
 
