@@ -1,7 +1,7 @@
 export interface IFrameData {
-    time: number
+    timestamp: number
     number_people: number
-    rate: number
+    distribution: number
 }
 
 export interface ICameraData {

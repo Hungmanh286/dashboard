@@ -5,7 +5,8 @@ import dayjs from 'dayjs';
 import {format} from 'fecha';
 
 import {ICameraData, IFrameData, IRoomData, IRoomInfo} from "../types/IRoomData.type";
-import RoomService from "../services/RoomService";
+import RoomService from "../services/room.service";
+import {usePub} from "../common/EventBus";
 
 
 
@@ -43,9 +44,11 @@ export const RoomChart = (room_: IRoomInfo) => {
     const [startDate, setStartDate] = useState<Date>(initialStartDate);
     const [endDate, setEndDate] = useState<Date>(initialEndDate);
 
+    const publish = usePub();
+
     const initialDataLine = {
         data: Array<IFrameData>(),
-        xField: (d: IFrameData) => new Date(d.time * 1000),
+        xField: (d: IFrameData) => new Date(d.timestamp),
         yField: 'number_people',
         axis: {x: {title: false, size: 40}, y: {title: false, size: 36}},
         point: {
@@ -85,8 +88,11 @@ export const RoomChart = (room_: IRoomInfo) => {
             let response: any = await RoomService.getAnalyzedRoom(room_id, start_time, end_time);
             // console.log(response);
             config.data = response.data.data;
-        } catch (error) {
+        } catch (error: any) {
             console.log(error);
+            if (error.response && error.response.status == 401) {
+                publish('logout', {});
+            }
         }
 
         return config;

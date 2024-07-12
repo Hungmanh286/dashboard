@@ -1,14 +1,15 @@
-import React, {useEffect, useState} from 'react'
+import React, {ErrorInfo, useEffect, useState} from 'react'
 import {useAppSelector, useAppDispatch} from '../store/hooks'
 import {Card, message, Carousel, Image, Popconfirm} from 'antd'
 import {EditOutlined, EllipsisOutlined, SettingOutlined, DeleteOutlined} from '@ant-design/icons';
 import {IRoomData, ICameraData, IFrameData, IRoomInfo} from "../types/IRoomData.type";
-import RoomService from "../services/RoomService";
+import RoomService from "../services/room.service";
 import {RoomChart} from "./RoomChart";
 import type { PopconfirmProps } from 'antd';
-import axios from "axios";
+import axios, {AxiosError} from "axios";
 import {removeRoom} from "../store/roomSlice";
 import {UpdateRoom} from "./UpdateRoom";
+import {usePub} from "../common/EventBus";
 
 const gridStyle: React.CSSProperties = {
     width: '100%',
@@ -52,21 +53,18 @@ const gridHighContentStyle: React.CSSProperties = {
 }
 
 export function Room(roomData: IRoomInfo) {
-    const dispatch = useAppDispatch()
-    const _id = (roomData._id == null) ? '' : roomData._id
+    const dispatch = useAppDispatch();
+    const _id = (roomData._id == null) ? '' : roomData._id;
 
-    const name = roomData.name
-    const capacity: number = roomData.capacity
-    const camera: Array<ICameraData> = roomData.camera === undefined ? [] : roomData.camera
-    const activate: boolean = roomData.active
+    const name = roomData.name;
+    const capacity: number = roomData.capacity;
+    const camera: Array<ICameraData> = roomData.camera === undefined ? [] : roomData.camera;
+    const activate: boolean = roomData.active;
 
     // const style_width_camera: string = ((100 -33) / camera.length).toString() + '%';
 
     const [images, setImages] = useState<Array<string>>([]);
     const [series, setSeries] = useState<Array<IFrameData>>([]);
-    // const [date, setDate] = useState<Date>();
-    // const [numberPeople, setNumberPeople] = useState<number>(0);
-    // const [distribution, setDistribution] = useState<number>(0);
 
     let distribution: number = 0;
     let numberPeople: number = 0;
@@ -74,6 +72,8 @@ export function Room(roomData: IRoomInfo) {
 
     const [open, setOpen] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
+
+    const publish = usePub();
 
     useEffect(() => {
         retrieveData();
@@ -83,13 +83,17 @@ export function Room(roomData: IRoomInfo) {
 
 
     const retrieveData = () => {
-        RoomService.getAnalyzedRoom(_id)
+        RoomService.getLastAnalyzedRooms(_id)
             .then((response: any) => {
                 // console.log(response);
                 setSeries(response.data.data);
             })
-            .catch((e: Error) => {
+            .catch((e: any) => {
                 console.log(e);
+                console.log(e.response.status);
+                if (e.response && e.response.status == 401) {
+                    publish('logout', {});
+                }
             })
     }
 
@@ -106,9 +110,12 @@ export function Room(roomData: IRoomInfo) {
                         // setImage(imageObjectURL);
                         // console.log(imageObjectURL)
                     })
-                    .catch((e: Error) => {
+                    .catch((e: any) => {
                         objectURLImages.push('')
                         console.log(e);
+                        if (e.response && e.response.status == 401) {
+                            publish('logout', {});
+                        }
                     });
             })
         )
@@ -122,7 +129,10 @@ export function Room(roomData: IRoomInfo) {
                 message.success("Deleted room");
                 dispatch(removeRoom(roomData));
             })
-            .catch((e: Error) => {
+            .catch((e: any) => {
+                if (e.response && e.response.status == 401) {
+                    publish('logout', {});
+                }
                 if (axios.isAxiosError(e)) {
                     console.log(e);
                     message.error(`Could not delete room cause ${e.request.response}`);
@@ -143,8 +153,8 @@ export function Room(roomData: IRoomInfo) {
 
     if (series.length > 0) {
         numberPeople = series[series.length - 1].number_people;
-        distribution = series[series.length - 1].rate;
-        date = new Date(series[series.length - 1].time * 1000);
+        distribution = series[series.length - 1].distribution;
+        date = new Date(series[series.length - 1].timestamp);
     }
 
     return (
@@ -158,6 +168,7 @@ export function Room(roomData: IRoomInfo) {
         //     // margin: '20px 20px',
         // }}>
             <Card
+                key={roomData._id}
                 title={name}
                 style={{
                     width: "100%",
@@ -176,7 +187,7 @@ export function Room(roomData: IRoomInfo) {
                             camera.length > 0 ?
                             camera.map((cam: ICameraData, index: number) => {
                                 return (
-                                    // <Card key={cam.camera_id} style={gridStyle}>
+                                    <Card key={cam.camera_id} style={gridStyle}>
                                         <Image
                                             // width={400}
                                             // height={300}
@@ -186,7 +197,7 @@ export function Room(roomData: IRoomInfo) {
                                             fallback="data:image/png;base64,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"
                                         >
                                         </Image>
-                                    // </Card>
+                                    </Card>
                                 )
                             }) : (<Card key="null" style={gridStyle}>
                                     <Image

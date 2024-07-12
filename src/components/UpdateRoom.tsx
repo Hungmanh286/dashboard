@@ -3,7 +3,7 @@ import React, {useEffect, useState} from "react";
 import {Line, LineConfig} from '@ant-design/charts';
 
 import {ICameraData, IRoomData, IRoomInfo} from "../types/IRoomData.type";
-import RoomService from "../services/RoomService";
+import RoomService from "../services/room.service";
 
 
 import {
@@ -25,6 +25,7 @@ import {
 } from 'antd';
 import {CloseOutlined, EditOutlined, PlusOutlined} from '@ant-design/icons';
 import axios, {AxiosError} from "axios";
+import {usePub} from "../common/EventBus";
 
 const {Option} = Select;
 
@@ -32,6 +33,8 @@ export const UpdateRoom = (room_: IRoomInfo) => {
     const room_id = room_._id == null ? '' : room_._id.toString();
     const room_name = room_.name
     const [open, setOpen] = useState<boolean>(false);
+
+    const publish = usePub();
 
     const initialRoomState = {
         _id: null,
@@ -75,35 +78,35 @@ export const UpdateRoom = (room_: IRoomInfo) => {
         // const data = {
         //     room_name: room.name,
         //     capacity: room.capacity,
-        //     activate: room.activate,
+        //     activate: room.active,
         // };
-
+        //
         // if (room.camera != undefined) {
-        //     data
+        //
         // }
 
-        // RoomService.updateRoom(room_id, room)
-        //     .then((response: any) => {
-        //         console.log(response);
-        //         setRoom({
-        //             _id: response.data._id,
-        //             name: response.data.room_name,
-        //             activate: response.data.activate,
-        //             capacity: response.data.capacity,
-        //             camera: response.data.camera,
-        //         });
-        //         message.success(`Created room ${response.data.room_name} successfully.`);
-        //         setSubmitted(true);
-        //         onReset();
-        //     })
-        //     .catch((e: Error) => {
-        //         if (axios.isAxiosError(e)) {
-        //             console.log(e);
-        //             message.error(`Could not create room cause ${e.request.response}`);
-        //         } else {
-        //             console.error(e);
-        //         }
-        //     });
+        RoomService.updateRoom(room_id, room)
+            .then((response: any) => {
+                console.log(response);
+                setRoom({
+                    _id: response.data._id,
+                    name: response.data.name,
+                    capacity: response.data.capacity,
+                    camera: response.data.camera,
+                    active: response.data.active,
+                });
+                message.success(`Created room ${response.data.room_name} successfully.`);
+                setSubmitted(true);
+                onReset();
+            })
+            .catch((e: Error) => {
+                if (axios.isAxiosError(e)) {
+                    console.log(e);
+                    message.error(`Could not create room cause ${e.request.response}`);
+                } else {
+                    console.error(e);
+                }
+            });
     };
 
     const onFinishFailed = () => {

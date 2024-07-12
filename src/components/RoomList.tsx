@@ -2,15 +2,17 @@ import {Col, Divider, Row, Flex} from 'antd';
 
 import {useAppDispatch, useAppSelector} from "../store/hooks";
 import {useState, useEffect} from "react";
-import RoomService from "../services/RoomService";
+import RoomService from "../services/room.service";
 import {IRoomInfo, IRoomData} from "../types/IRoomData.type";
 import {Room} from "./Room"
 import {initRooms} from "../store/roomSlice";
+import {usePub} from "../common/EventBus";
 
 
 export function RoomList() {
     const rooms: Array<IRoomInfo> = useAppSelector((state) => state.rooms.rooms)
-    const dispatch = useAppDispatch()
+    const dispatch = useAppDispatch();
+    const publish = usePub();
 
     useEffect(() => {
         retrieveRooms();
@@ -23,14 +25,16 @@ export function RoomList() {
 
                 dispatch(initRooms(response.data.data))
             })
-            .catch((e: Error) => {
+            .catch((e: any) => {
                 console.log(e);
+                if (e.response && e.response.status == 401) {
+                    publish('logout', {});
+                }
             });
-
     }
 
     const listItem = rooms.map((room: IRoomInfo, index) => {
-        console.log(room);
+        // console.log(room);
         return (
             <div key={room._id}>
                 <Room

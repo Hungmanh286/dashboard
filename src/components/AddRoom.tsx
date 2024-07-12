@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import RoomService from "../services/RoomService";
+import RoomService from "../services/room.service";
 import {IRoomInfo, ICameraData} from "../types/IRoomData.type";
 
 import {
@@ -13,10 +13,10 @@ import {
     Card,
     Divider,
 } from 'antd';
-import { CloseOutlined, PlusOutlined} from '@ant-design/icons';
+import {CloseOutlined, PlusOutlined} from '@ant-design/icons';
 import axios from "axios";
 
-const { Option } = Select;
+const {Option} = Select;
 
 const AddRoom = () => {
     const [form] = Form.useForm<IRoomInfo>();
@@ -42,10 +42,10 @@ const AddRoom = () => {
     // }
 
     const onFinish = () => {
-        console.log(room);
+        // console.log(room);
 
         RoomService.createRoom(room)
-            .then((response:any) => {
+            .then((response: any) => {
                 // console.log(response);
                 setRoom({
                     _id: response.data._id,
@@ -69,7 +69,7 @@ const AddRoom = () => {
     };
 
     const onFinishFailed = () => {
-        console.log('Submit failed!');
+        // console.log('Submit failed!');
     };
 
     const onReset = () => {
@@ -82,169 +82,178 @@ const AddRoom = () => {
         }}>
             <Divider orientation="left">Add room</Divider>
             <Card>
-            <Form
-                form={form}
-                onFinish={onFinish}
-                onFinishFailed={onFinishFailed}
-                labelCol={{
-                    flex: '110px',
-                    span: 8
-                }}
-                labelAlign="left"
-                labelWrap
-                wrapperCol={{
-                    // flex: 1,
-                    span: 16
-                }}
-                colon={false}
-                style={{
-                    maxWidth: 1000,
-                }}
-            >
-                <Form.Item<IRoomInfo>
-                    label="Room name"
-                    name="name"
-                    rules={[
-                        { required: true, message: 'Please enter a room name!'
-                        },
-                    ]}
+                <Form
+                    form={form}
+                    onFinish={onFinish}
+                    onFinishFailed={onFinishFailed}
+                    labelCol={{
+                        flex: '110px',
+                        span: 8
+                    }}
+                    labelAlign="left"
+                    labelWrap
+                    wrapperCol={{
+                        // flex: 1,
+                        span: 16
+                    }}
+                    colon={false}
+                    style={{
+                        maxWidth: 1000,
+                    }}
                 >
-                    <Input />
-                </Form.Item>
+                    <Form.Item<IRoomInfo>
+                        label="Room name"
+                        name="name"
+                        rules={[
+                            {
+                                required: true, message: 'Please enter a room name!'
+                            },
+                        ]}
+                    >
+                        <Input/>
+                    </Form.Item>
 
-                <Form.Item<IRoomInfo>
-                    label="Capacity"
-                    name="capacity"
-                    rules={[
-                        { required: true, message: 'Please enter capacity of the room!'
-                        },
-                    ]}
-                >
-                    <InputNumber />
-                </Form.Item>
+                    <Form.Item<IRoomInfo>
+                        label="Capacity"
+                        name="capacity"
+                        rules={[
+                            {
+                                required: true, message: 'Please enter capacity of the room!'
+                            },
+                        ]}
+                    >
+                        <InputNumber/>
+                    </Form.Item>
 
-                <Form.Item<IRoomInfo>
-                    label="Active"
-                    name="active"
-                    valuePropName="checked"
-                    initialValue={true}
-                    rules={[
-                        { required: true, message: 'Please choose status of the room!'
-                        },
-                    ]}
-                >
-                    <Switch checkedChildren="Yes" unCheckedChildren="No" />
-                </Form.Item>
+                    <Form.Item<IRoomInfo>
+                        label="Active"
+                        name="active"
+                        valuePropName="checked"
+                        initialValue={true}
+                        rules={[
+                            {
+                                required: true, message: 'Please choose status of the room!'
+                            },
+                        ]}
+                    >
+                        <Switch checkedChildren="Yes" unCheckedChildren="No"/>
+                    </Form.Item>
 
-                <Form.List name="camera">
-                    {(fields, {add, remove}) => (
-                        <div style={{ display: 'flex', flexDirection: 'column', rowGap: 16 }}>
-                        {/*<>*/}
-                            {fields.map((field) => (
-                                <Card
-                                    size="small"
-                                    title={`Camera ${field.name + 1}`}
-                                    key={field.key}
-                                    extra={
-                                        <CloseOutlined
-                                            onClick={() => {
-                                                remove(field.name);
-                                            }}
-                                        />
-                                    }
-                                >
-                                    <Form.Item
-                                        label="Camera id"
-                                        name={[field.name, 'camera_id']}
-                                        rules={[
-                                            { required: true, message: 'Please enter a camera id!'
-                                            },
-                                        ]}
+                    <Form.List name="camera">
+                        {(fields, {add, remove}) => (
+                            <div style={{display: 'flex', flexDirection: 'column', rowGap: 16}}>
+                                {/*<>*/}
+                                {fields.map((field) => (
+                                    <Card
+                                        size="small"
+                                        title={`Camera ${field.name + 1}`}
+                                        key={field.key}
+                                        extra={
+                                            <CloseOutlined
+                                                onClick={() => {
+                                                    remove(field.name);
+                                                }}
+                                            />
+                                        }
                                     >
-                                        <Input />
-                                    </Form.Item>
+                                        <Form.Item
+                                            label="Camera id"
+                                            name={[field.name, 'camera_id']}
+                                            rules={[
+                                                {
+                                                    required: true, message: 'Please enter a camera id!'
+                                                },
+                                            ]}
+                                        >
+                                            <Input/>
+                                        </Form.Item>
 
-                                    <Form.Item
-                                        label="Camera ip"
-                                        name={[field.name, 'camera_ip']}
-                                        rules={[
-                                            { required: true, message: 'Please enter a camera id!'
-                                            },
-                                        ]}
+                                        <Form.Item
+                                            label="Camera ip"
+                                            name={[field.name, 'camera_ip']}
+                                            rules={[
+                                                {
+                                                    required: true, message: 'Please enter a camera id!'
+                                                },
+                                            ]}
+                                        >
+                                            <Input/>
+                                        </Form.Item>
+
+                                        <Form.Item
+                                            label="Video source"
+                                            name={[field.name, 'video_source']}
+                                            rules={[
+                                                {
+                                                    required: true, message: 'Please enter a camera id!'
+                                                },
+                                            ]}
+                                        >
+                                            <Input/>
+                                        </Form.Item>
+
+                                        <Form.Item
+                                            label="Encode"
+                                            name={[field.name, 'encode']}
+                                            rules={[
+                                                {
+                                                    required: true, message: 'Please enter the encode type!'
+                                                },
+                                            ]}
+                                        >
+                                            <Select>
+                                                <Option value="h264">H264</Option>
+                                                <Option value="h265">H265</Option>
+                                            </Select>
+                                        </Form.Item>
+
+                                        <Form.Item
+                                            label="Width"
+                                            name={[field.name, 'camera_width']}
+                                            rules={[
+                                                {
+                                                    required: false, message: 'Please enter the encode type!'
+                                                },
+                                            ]}
+                                        >
+                                            <InputNumber/>
+                                        </Form.Item>
+
+                                        <Form.Item
+                                            label="Height"
+                                            name={[field.name, 'camera_height']}
+                                            rules={[
+                                                {
+                                                    required: false, message: 'Please enter the encode type!'
+                                                },
+                                            ]}
+                                        >
+                                            <InputNumber/>
+                                        </Form.Item>
+                                    </Card>
+                                ))}
+                                <Form.Item>
+                                    <Button type="dashed"
+                                            onClick={() => add()}
+                                            style={{width: '100%'}}
+                                            block
+                                            icon={<PlusOutlined/>}
                                     >
-                                        <Input />
-                                    </Form.Item>
+                                        Add Camera
+                                    </Button>
+                                </Form.Item>
+                            </div>
+                        )}
+                    </Form.List>
 
-                                    <Form.Item
-                                        label="Video source"
-                                        name={[field.name, 'video_source']}
-                                        rules={[
-                                            { required: true, message: 'Please enter a camera id!'
-                                            },
-                                        ]}
-                                    >
-                                        <Input />
-                                    </Form.Item>
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit">
+                            Submit
+                        </Button>
+                    </Form.Item>
 
-                                    <Form.Item
-                                        label="Encode"
-                                        name={[field.name, 'encode']}
-                                        rules={[
-                                            { required: true, message: 'Please enter the encode type!'
-                                            },
-                                        ]}
-                                    >
-                                        <Select>
-                                            <Option value="h264">H264</Option>
-                                            <Option value="h265">H265</Option>
-                                        </Select>
-                                    </Form.Item>
-
-                                    <Form.Item
-                                        label="Width"
-                                        name={[field.name, 'camera_width']}
-                                        rules={[
-                                            { required: false, message: 'Please enter the encode type!'
-                                            },
-                                        ]}
-                                    >
-                                        <InputNumber />
-                                    </Form.Item>
-
-                                    <Form.Item
-                                        label="Height"
-                                        name={[field.name, 'camera_height']}
-                                        rules={[
-                                            { required: false, message: 'Please enter the encode type!'
-                                            },
-                                        ]}
-                                    >
-                                        <InputNumber />
-                                    </Form.Item>
-                                </Card>
-                            ))}
-                            <Form.Item>
-                                <Button type="dashed"
-                                        onClick={() => add()}
-                                        style={{ width: '100%' }}
-                                        block
-                                        icon={<PlusOutlined />}
-                                >
-                                    Add Camera
-                                </Button>
-                            </Form.Item>
-                        </div>
-                    )}
-                </Form.List>
-
-                <Form.Item>
-                    <Button type="primary" htmlType="submit">
-                        Submit
-                    </Button>
-                </Form.Item>
-
-            </Form>
-        </Card>
+                </Form>
+            </Card>
         </div>
     )
 }
