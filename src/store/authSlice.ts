@@ -24,7 +24,7 @@ export const login = createAsyncThunk(
                 error.message ||
                 error.toString();
             // thunkAPI.dispatch(setMessage(message));
-            console.log(error.response);
+            console.log(error);
             return thunkAPI.rejectWithValue(error.response.data);
         }
     }

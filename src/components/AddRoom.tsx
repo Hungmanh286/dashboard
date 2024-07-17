@@ -58,13 +58,8 @@ const AddRoom = () => {
                 // setSubmitted(true);
                 onReset();
             })
-            .catch((e: Error) => {
-                if (axios.isAxiosError(e)) {
-                    console.log(e);
-                    message.error(`Could not create room cause ${e.request.response}`);
-                } else {
-                    console.error(e);
-                }
+            .catch((e: any) => {
+                message.error(`Could not create room cause ${e.response?.data.message}`);
             });
     };
 

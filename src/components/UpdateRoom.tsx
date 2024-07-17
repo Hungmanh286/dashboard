@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 
-import {IRoomInfo} from "../types/IRoomData.type";
+import {ICameraData, IRoomInfo} from "../types/IRoomData.type";
 import RoomService from "../services/room.service";
 
 
@@ -14,9 +14,9 @@ import {
     InputNumber,
     Select,
     Card,
-    Space,
+    Space, Popconfirm, PopconfirmProps,
 } from 'antd';
-import {CloseOutlined, EditOutlined, PlusOutlined} from '@ant-design/icons';
+import {CloseOutlined, DeleteOutlined, EditOutlined, PlusOutlined} from '@ant-design/icons';
 import axios from "axios";
 import {useAppDispatch, useAppSelector} from "../store/hooks";
 import {updateRoom} from "../store/roomSlice";
@@ -36,6 +36,12 @@ export const UpdateRoom = (room_: IRoomInfo) => {
     const [form] = Form.useForm<IRoomInfo>();
 
     const [room, setRoom] = useState<IRoomInfo>(room_);
+    let cameraIds: string[] = []
+    if (room_.camera != undefined) {
+        cameraIds = room_.camera.map((cam: ICameraData) => {
+            return cam.camera_id;
+        })
+    }
     const [submitted, setSubmitted] = useState<boolean>(false);
 
     const handleWatchForm = Form.useWatch((values) => {
@@ -56,11 +62,15 @@ export const UpdateRoom = (room_: IRoomInfo) => {
         form.setFieldsValue(room);
     }, []);
 
+    const cancel: PopconfirmProps['onCancel'] = (e) => {
+    };
+
+
     const onFinish = () => {
-        // console.log(room);
+        console.log(room);
         RoomService.updateRoom(room_id, room)
             .then((response: any) => {
-                room._id = room_id;
+                if (room._id == null) room._id = room_id;
                 dispatch(updateRoom(room));
                 message.success(`Updated room ${room.name} successfully.`);
                 setSubmitted(true);
@@ -175,7 +185,7 @@ export const UpdateRoom = (room_: IRoomInfo) => {
                                     rowGap: 16,
                                     columnGap: 16
                                 }}>
-                                    {fields.map((field) => (
+                                    {fields.map((field, index) => (
                                         <Card
                                             size="small"
                                             title={`Camera ${field.name + 1}`}
@@ -197,7 +207,8 @@ export const UpdateRoom = (room_: IRoomInfo) => {
                                                     },
                                                 ]}
                                             >
-                                                <Input disabled={true}/>
+                                                <Input disabled={index < room_.camera!.length?
+                                                    cameraIds.includes(room_.camera![index].camera_id) : false}/>
                                             </Form.Item>
 
                                             <Form.Item
@@ -265,6 +276,7 @@ export const UpdateRoom = (room_: IRoomInfo) => {
                                         </Card>
                                     ))}
                                     <Form.Item>
+
                                         <Button type="dashed"
                                                 onClick={() => add()}
                                                 style={{width: '100%'}}
@@ -280,9 +292,20 @@ export const UpdateRoom = (room_: IRoomInfo) => {
 
                         <Form.Item>
                             <Space>
-                                <Button type="primary" htmlType="submit">
+                                <Popconfirm
+                                    title="Update the room"
+                                    description="Are you sure to update this room?"
+                                    onConfirm={() => {
+                                        form.submit();
+                                    }}
+                                    onCancel={cancel}
+                                    okText="Yes"
+                                    cancelText="No"
+                                >
+                                <Button type="primary">
                                     Update
                                 </Button>
+                                </Popconfirm>
                                 <Button htmlType="button" onClick={onReset}>
                                     Reset
                                 </Button>

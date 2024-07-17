@@ -87,7 +87,7 @@ export const RoomChart = (room_: IRoomInfo) => {
         try {
             let response: any = await RoomService.getAnalyzedRoom(room_id, start_time, end_time);
             // console.log(response);
-            config.data = response.data.data;
+            config.data = response.data;
         } catch (error: any) {
             console.log(error);
             if (error.response && error.response.status == 401) {

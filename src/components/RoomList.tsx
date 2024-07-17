@@ -23,7 +23,7 @@ export function RoomList() {
             .then((response: any) => {
                 console.log(response);
 
-                dispatch(initRooms(response.data.data))
+                dispatch(initRooms(response.data))
             })
             .catch((e: any) => {
                 console.log(e);

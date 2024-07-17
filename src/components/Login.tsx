@@ -31,6 +31,7 @@ export const Login = () => {
             })
             .catch((rejectedValueOrSerializedError) => {
                 // handle error here
+                console.log(rejectedValueOrSerializedError);
                 setMessage("Wrong user name or password")
                 setLoading(false);
             })
