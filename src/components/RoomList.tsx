@@ -52,9 +52,9 @@ export function RoomList() {
         <div style={{
             padding: '25px'
         }}>
-            <Divider orientation="left">Dashboard</Divider>
+            <Divider orientation="left" style={{fontWeight: 'bold', fontSize: 'large'}}>Dashboard</Divider>
 
-            <Flex wrap gap="small">
+            <Flex wrap gap="large">
                 {listItem}
             </Flex>
         </div>

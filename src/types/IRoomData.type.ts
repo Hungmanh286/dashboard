@@ -25,3 +25,9 @@ export interface IRoomData extends IRoomInfo {
     series_data: Array<IFrameData>
 }
 
+export interface ImageResponse {
+    extension: string
+    image_base64: string
+    width: number
+    height: number
+}

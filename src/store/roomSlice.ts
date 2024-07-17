@@ -38,13 +38,13 @@ export const roomSlice = createSlice({
             let index = state.rooms.findIndex((room) => {
                 return room._id === action.payload._id;
             });
-
+            console.log("Find: " + index);
             state.rooms[index] = action.payload;
         },
     }
 })
 
-export const {addRoom, removeRoom, initRooms} = roomSlice.actions
+export const {updateRoom, addRoom, removeRoom, initRooms} = roomSlice.actions
 
 // export const updateRoomAsync = (roomInfo: RoomState) => (dispatch: AppDispatch) => {
 //     setTimeout(() => {

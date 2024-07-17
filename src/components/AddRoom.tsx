@@ -54,7 +54,7 @@ const AddRoom = () => {
                     capacity: response.data.capacity,
                     camera: response.data.camera,
                 });
-                message.success(`Created room ${response.data.room_name} successfully.`);
+                message.success(`Created room ${response.data.name} successfully.`);
                 // setSubmitted(true);
                 onReset();
             })
@@ -78,7 +78,12 @@ const AddRoom = () => {
 
     return (
         <div style={{
-            padding: '25px 100px'
+            padding: '25px 100px',
+            // display: 'flex',
+            // flexWrap: 'wrap',
+            // flex: 'fit-content',
+            flexDirection: 'row',
+            alignItems: 'center'
         }}>
             <Divider orientation="left">Add room</Divider>
             <Card>
@@ -88,7 +93,7 @@ const AddRoom = () => {
                     onFinishFailed={onFinishFailed}
                     labelCol={{
                         flex: '110px',
-                        span: 8
+                        span: 16
                     }}
                     labelAlign="left"
                     labelWrap
@@ -98,7 +103,7 @@ const AddRoom = () => {
                     }}
                     colon={false}
                     style={{
-                        maxWidth: 1000,
+                        maxWidth: "100vh",
                     }}
                 >
                     <Form.Item<IRoomInfo>
@@ -141,11 +146,14 @@ const AddRoom = () => {
 
                     <Form.List name="camera">
                         {(fields, {add, remove}) => (
-                            <div style={{display: 'flex', flexDirection: 'column', rowGap: 16}}>
-                                {/*<>*/}
+                            <div style={{
+                                display: 'flex', flexWrap: 'wrap',
+                                flexDirection: 'row', rowGap: 16, columnGap: 16,
+                                padding: '10px 0',
+                            }}>
                                 {fields.map((field) => (
                                     <Card
-                                        size="small"
+                                        size="default"
                                         title={`Camera ${field.name + 1}`}
                                         key={field.key}
                                         extra={
@@ -155,6 +163,9 @@ const AddRoom = () => {
                                                 }}
                                             />
                                         }
+                                        style={{
+                                            minWidth: '30%'
+                                        }}
                                     >
                                         <Form.Item
                                             label="Camera id"
@@ -173,7 +184,7 @@ const AddRoom = () => {
                                             name={[field.name, 'camera_ip']}
                                             rules={[
                                                 {
-                                                    required: true, message: 'Please enter a camera id!'
+                                                    required: true, message: 'Please enter a camera ip!'
                                                 },
                                             ]}
                                         >
@@ -185,7 +196,7 @@ const AddRoom = () => {
                                             name={[field.name, 'video_source']}
                                             rules={[
                                                 {
-                                                    required: true, message: 'Please enter a camera id!'
+                                                    required: true, message: 'Please enter a video source!'
                                                 },
                                             ]}
                                         >
@@ -235,7 +246,7 @@ const AddRoom = () => {
                                 <Form.Item>
                                     <Button type="dashed"
                                             onClick={() => add()}
-                                            style={{width: '100%'}}
+                                            style={{width: '200%'}}
                                             block
                                             icon={<PlusOutlined/>}
                                     >

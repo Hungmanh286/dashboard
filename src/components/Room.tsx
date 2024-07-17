@@ -158,21 +158,25 @@ export function Room(roomData: IRoomInfo) {
     }
 
     return (
-        // <div style={{
-        //     position: 'relative',
-        //     width: "40vh",
-        //     // height: "50vh",
-        //     padding: '0px 20px',
-        //     display: "flex",
-        //     // flex-direction: "column"
-        //     // margin: '20px 20px',
-        // }}>
+        <div style={{
+            // position: 'relative',
+            // maxWidth: "40vh",
+            // minWidth: "40vh",
+            // minHeight: "30vh",
+            // padding: '0px 20px',
+            // display: "flex",
+            // flex-direction: "column"
+            // margin: '20px 20px',
+        }}>
             <Card
                 key={roomData._id}
                 title={name}
                 style={{
                     width: "100%",
+                    maxWidth: '35vh',
                     padding: '0px 20px',
+                    minWidth: '600px',
+                    minHeight: '600px'
                     // margin: '20px 20px',
                 }}
                 hoverable={true}
@@ -180,7 +184,7 @@ export function Room(roomData: IRoomInfo) {
                 cover={
                     <Carousel autoplay={true} arrows infinite={false} style={{
                         height: '50%',
-                        flex: 1,
+                        // flex: 1,
                         alignItems: "center"
                     }}>
                         {
@@ -264,6 +268,6 @@ export function Room(roomData: IRoomInfo) {
 
                 {/*<button onClick={() => {dispatch(updateRoom())}}>Update</button>*/}
             </Card>
-        // </div>
+        </div>
     )
 }

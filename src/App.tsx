@@ -1,15 +1,14 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {Routes, Route, Router, Link, Navigate, useNavigate, useLocation} from "react-router-dom";
-import './App.css';
-import {RoomList} from "./components/RoomList";
+import {Routes, Route, useNavigate, useLocation} from "react-router-dom";
+import './assets/css/App.css';
 import AddRoom from "./components/AddRoom";
-import {MenuProps, Breadcrumb, Layout, Menu, theme} from 'antd';
-import {UserOutlined, SettingOutlined,
+import {MenuProps, Layout, Menu} from 'antd';
+import {
+    UserOutlined, SettingOutlined,
     ScheduleOutlined, HomeOutlined, LoginOutlined,
-    LogoutOutlined} from '@ant-design/icons';
-import './logo.svg';
+    LogoutOutlined
+} from '@ant-design/icons';
 import {useAppDispatch, useAppSelector} from "./store/hooks";
-import {UserToken} from "./types/user.type";
 import {Home} from "./components/Home";
 import {Login} from "./components/Login";
 import {logout} from "./store/authSlice";
@@ -38,7 +37,7 @@ function App() {
             setShowSetting(false);
         }
 
-        if (!currentUser && currentPath != '/login') {
+        if (!currentUser && currentPath !== '/login') {
             setCurrentPath("/login");
             navigate('/login');
         }
@@ -46,7 +45,7 @@ function App() {
 
     const onClick: MenuProps['onClick'] = (e) => {
         setCurrentPath(e.key);
-        if (e.key == '/logout') {
+        if (e.key === '/logout') {
             _logout();
         } else {
             navigate(e.key);
@@ -105,7 +104,7 @@ function App() {
                 {
                     label: 'Logout',
                     key: '/logout',
-                    icon: <LoginOutlined/>
+                    icon: <LogoutOutlined/>
                 }
             ],
         })
@@ -139,7 +138,6 @@ function App() {
                     fontSize: 'calc(10px + 2vmin)',
                 }}
             >
-                {/*<div className="logo.svg"/>*/}
                 <Menu
                     theme="dark"
                     onClick={onClick}
@@ -158,12 +156,12 @@ function App() {
                 }}
             >
                 <div className="App-body">
-                        <Routes>
-                            <Route path="/" element={<Home/>}/>
-                            <Route path="/home" element={<Home/>}/>
-                            <Route path="/add" element={<AddRoom/>}/>
-                            <Route path="/login" element={<Login/>}/>
-                        </Routes>
+                    <Routes>
+                        <Route path="/" element={<Home/>}/>
+                        <Route path="/home" element={<Home/>}/>
+                        <Route path="/add" element={<AddRoom/>}/>
+                        <Route path="/login" element={<Login/>}/>
+                    </Routes>
                 </div>
             </Content>
             <Footer

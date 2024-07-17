@@ -1,48 +1,37 @@
 import React, {useEffect, useState} from "react";
 
-import {Line, LineConfig} from '@ant-design/charts';
-
-import {ICameraData, IRoomData, IRoomInfo} from "../types/IRoomData.type";
+import {IRoomInfo} from "../types/IRoomData.type";
 import RoomService from "../services/room.service";
 
 
 import {
     Modal,
     Button,
-    Cascader,
     message,
     Form,
     Input,
     Switch,
     InputNumber,
-    Mentions,
     Select,
-    TreeSelect,
     Card,
-    DatePicker,
     Space,
-    Checkbox
 } from 'antd';
 import {CloseOutlined, EditOutlined, PlusOutlined} from '@ant-design/icons';
-import axios, {AxiosError} from "axios";
-import {usePub} from "../common/EventBus";
+import axios from "axios";
+import {useAppDispatch, useAppSelector} from "../store/hooks";
+import {updateRoom} from "../store/roomSlice";
 
 const {Option} = Select;
 
 export const UpdateRoom = (room_: IRoomInfo) => {
+    const dispatch = useAppDispatch();
+    const {user: currentUser} = useAppSelector((state) => state.auth);
+
+
     const room_id = room_._id == null ? '' : room_._id.toString();
-    const room_name = room_.name
+    const room_name = room_.name;
+    let [allowedUpdate, setAllowedUpdate] = useState<boolean>(false);
     const [open, setOpen] = useState<boolean>(false);
-
-    const publish = usePub();
-
-    const initialRoomState = {
-        _id: null,
-        name: '',
-        capacity: 50,
-        camera: Array<ICameraData>(),
-        active: true
-    };
 
     const [form] = Form.useForm<IRoomInfo>();
 
@@ -51,53 +40,30 @@ export const UpdateRoom = (room_: IRoomInfo) => {
 
     const handleWatchForm = Form.useWatch((values) => {
         setRoom(values)
-    }, form)
+    }, form);
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         console.log(e.target);
         const {name, value} = e.target;
         setRoom({...room, [name]: value});
     }
 
+    if (currentUser && currentUser.role.includes("admin")) {
+        allowedUpdate = true;
+    }
+
     useEffect(() => {
         form.setFieldsValue(room);
     }, []);
 
-    // const onValuesChange = (changedValues: IRoomInfo, allValues: IRoomInfo) => {
-    //     // Compare the changed values with the initial values
-    //     const changedFields = Object.keys(changedValues);
-    //     const hasChanges = changedFields.some(field => allValues.field !== room_[field]);
-    //
-    //     // If there are changes, do the dispatch
-    //     if (hasChanges) {
-    //         //dispatch go here
-    //     }
-    // };
-
     const onFinish = () => {
-        console.log(room);
-        // const data = {
-        //     room_name: room.name,
-        //     capacity: room.capacity,
-        //     activate: room.active,
-        // };
-        //
-        // if (room.camera != undefined) {
-        //
-        // }
-
+        // console.log(room);
         RoomService.updateRoom(room_id, room)
             .then((response: any) => {
-                console.log(response);
-                setRoom({
-                    _id: response.data._id,
-                    name: response.data.name,
-                    capacity: response.data.capacity,
-                    camera: response.data.camera,
-                    active: response.data.active,
-                });
-                message.success(`Created room ${response.data.room_name} successfully.`);
+                room._id = room_id;
+                dispatch(updateRoom(room));
+                message.success(`Updated room ${room.name} successfully.`);
                 setSubmitted(true);
-                onReset();
             })
             .catch((e: Error) => {
                 if (axios.isAxiosError(e)) {
@@ -110,13 +76,8 @@ export const UpdateRoom = (room_: IRoomInfo) => {
     };
 
     const onFinishFailed = () => {
-        console.log('Submit failed!');
+        // console.log('Submit failed!');
     };
-
-    const newRoom = () => {
-        setRoom(initialRoomState);
-        setSubmitted(false);
-    }
 
     const onReset = () => {
         form.setFieldsValue(room_);
@@ -147,7 +108,7 @@ export const UpdateRoom = (room_: IRoomInfo) => {
             >
                 <Card>
                     <Form
-                        disabled={true}
+                        disabled={!allowedUpdate}
                         form={form}
                         onFinish={onFinish}
                         onFinishFailed={onFinishFailed}
@@ -207,19 +168,25 @@ export const UpdateRoom = (room_: IRoomInfo) => {
 
                         <Form.List name="camera">
                             {(fields, {add, remove}) => (
-                                <div style={{display: 'flex', flexDirection: 'column', rowGap: 16}}>
+                                <div style={{
+                                    display: 'flex',
+                                    flexWrap: 'wrap',
+                                    flexDirection: 'row',
+                                    rowGap: 16,
+                                    columnGap: 16
+                                }}>
                                     {fields.map((field) => (
                                         <Card
                                             size="small"
                                             title={`Camera ${field.name + 1}`}
                                             key={field.key}
-                                            // extra={
-                                            //     <CloseOutlined
-                                            //         onClick={() => {
-                                            //             remove(field.name);
-                                            //         }}
-                                            //     />
-                                            // }
+                                            extra={
+                                                <CloseOutlined
+                                                    onClick={() => {
+                                                        remove(field.name);
+                                                    }}
+                                                />
+                                            }
                                         >
                                             <Form.Item
                                                 label="Camera id"
@@ -230,7 +197,7 @@ export const UpdateRoom = (room_: IRoomInfo) => {
                                                     },
                                                 ]}
                                             >
-                                                <Input/>
+                                                <Input disabled={true}/>
                                             </Form.Item>
 
                                             <Form.Item
@@ -297,30 +264,30 @@ export const UpdateRoom = (room_: IRoomInfo) => {
                                             </Form.Item>
                                         </Card>
                                     ))}
-                                    {/*<Form.Item>*/}
-                                    {/*    <Button type="dashed"*/}
-                                    {/*            onClick={() => add()}*/}
-                                    {/*            style={{width: '100%'}}*/}
-                                    {/*            block*/}
-                                    {/*            icon={<PlusOutlined/>}*/}
-                                    {/*    >*/}
-                                    {/*        Add Camera*/}
-                                    {/*    </Button>*/}
-                                    {/*</Form.Item>*/}
+                                    <Form.Item>
+                                        <Button type="dashed"
+                                                onClick={() => add()}
+                                                style={{width: '100%'}}
+                                                block
+                                                icon={<PlusOutlined/>}
+                                        >
+                                            Add Camera
+                                        </Button>
+                                    </Form.Item>
                                 </div>
                             )}
                         </Form.List>
 
-                        {/*<Form.Item>*/}
-                        {/*    <Space>*/}
-                        {/*        <Button type="primary" htmlType="submit">*/}
-                        {/*            Update*/}
-                        {/*        </Button>*/}
-                        {/*        <Button htmlType="button" onClick={onReset}>*/}
-                        {/*            Reset*/}
-                        {/*        </Button>*/}
-                        {/*    </Space>*/}
-                        {/*</Form.Item>*/}
+                        <Form.Item>
+                            <Space>
+                                <Button type="primary" htmlType="submit">
+                                    Update
+                                </Button>
+                                <Button htmlType="button" onClick={onReset}>
+                                    Reset
+                                </Button>
+                            </Space>
+                        </Form.Item>
 
                     </Form>
                 </Card>

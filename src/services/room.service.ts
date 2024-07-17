@@ -15,7 +15,7 @@ const createRoom = (data: IRoomInfo) => {
 }
 
 const updateRoom = (id: string, data: IRoomInfo) => {
-    return http.put<IRoomInfo>(`/room/${id}`, data, { headers: authHeader() })
+    return http.put<IRoomInfo>(`/room/update/${id}`, data, { headers: authHeader() })
 }
 
 const deleteRoom = (id: string) => {
