@@ -21,7 +21,6 @@ export function RoomList() {
     const retrieveRooms = () => {
         RoomService.getAllRoom()
             .then((response: any) => {
-                console.log(response);
 
                 dispatch(initRooms(response.data))
             })

@@ -16,7 +16,7 @@ import {
     Card,
     Space, Popconfirm, PopconfirmProps,
 } from 'antd';
-import {CloseOutlined, DeleteOutlined, EditOutlined, PlusOutlined} from '@ant-design/icons';
+import {CloseOutlined, EditOutlined, PlusOutlined} from '@ant-design/icons';
 import axios from "axios";
 import {useAppDispatch, useAppSelector} from "../store/hooks";
 import {updateRoom} from "../store/roomSlice";
@@ -27,7 +27,6 @@ export const UpdateRoom = (room_: IRoomInfo) => {
     const dispatch = useAppDispatch();
     const {user: currentUser} = useAppSelector((state) => state.auth);
 
-
     const room_id = room_._id == null ? '' : room_._id.toString();
     const room_name = room_.name;
     let [allowedUpdate, setAllowedUpdate] = useState<boolean>(false);
@@ -37,7 +36,7 @@ export const UpdateRoom = (room_: IRoomInfo) => {
 
     const [room, setRoom] = useState<IRoomInfo>(room_);
     let cameraIds: string[] = []
-    if (room_.camera != undefined) {
+    if (room_.camera !== undefined) {
         cameraIds = room_.camera.map((cam: ICameraData) => {
             return cam.camera_id;
         })
@@ -67,7 +66,6 @@ export const UpdateRoom = (room_: IRoomInfo) => {
 
 
     const onFinish = () => {
-        console.log(room);
         RoomService.updateRoom(room_id, room)
             .then((response: any) => {
                 if (room._id == null) room._id = room_id;
@@ -191,11 +189,15 @@ export const UpdateRoom = (room_: IRoomInfo) => {
                                             title={`Camera ${field.name + 1}`}
                                             key={field.key}
                                             extra={
-                                                <CloseOutlined
-                                                    onClick={() => {
-                                                        remove(field.name);
-                                                    }}
-                                                />
+                                                <Button disabled={!allowedUpdate}
+                                                        onClick={() => {
+                                                            remove(field.name);
+                                                        }}
+                                                >
+                                                    <CloseOutlined
+
+                                                    />
+                                                </Button>
                                             }
                                         >
                                             <Form.Item
@@ -207,7 +209,7 @@ export const UpdateRoom = (room_: IRoomInfo) => {
                                                     },
                                                 ]}
                                             >
-                                                <Input disabled={index < room_.camera!.length?
+                                                <Input disabled={index < room_.camera!.length ?
                                                     cameraIds.includes(room_.camera![index].camera_id) : false}/>
                                             </Form.Item>
 
@@ -302,9 +304,9 @@ export const UpdateRoom = (room_: IRoomInfo) => {
                                     okText="Yes"
                                     cancelText="No"
                                 >
-                                <Button type="primary">
-                                    Update
-                                </Button>
+                                    <Button type="primary">
+                                        Update
+                                    </Button>
                                 </Popconfirm>
                                 <Button htmlType="button" onClick={onReset}>
                                     Reset

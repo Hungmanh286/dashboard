@@ -1,12 +1,11 @@
 import React, {ErrorInfo, useEffect, useState} from 'react'
 import {useAppSelector, useAppDispatch} from '../store/hooks'
 import {Card, message, Carousel, Image, Popconfirm, Progress} from 'antd'
-import {EditOutlined, EllipsisOutlined, SettingOutlined, DeleteOutlined} from '@ant-design/icons';
-import {IRoomData, ICameraData, IFrameData, IRoomInfo, ImageResponse} from "../types/IRoomData.type";
+import {EditOutlined, SettingOutlined, DeleteOutlined} from '@ant-design/icons';
+import {ICameraData, IFrameData, IRoomInfo, ImageResponse} from "../types/IRoomData.type";
 import RoomService from "../services/room.service";
 import {RoomChart} from "./RoomChart";
 import type {PopconfirmProps} from 'antd';
-import axios, {AxiosError} from "axios";
 import {removeRoom} from "../store/roomSlice";
 import {UpdateRoom} from "./UpdateRoom";
 import {usePub} from "../common/EventBus";
@@ -54,8 +53,9 @@ const gridHighContentStyle: React.CSSProperties = {
 
 export function Room(roomData: IRoomInfo) {
     const dispatch = useAppDispatch();
-    const _id = (roomData._id == null) ? '' : roomData._id;
+    const {user: currentUser} = useAppSelector((state) => state.auth);
 
+    const _id = (roomData._id == null) ? '' : roomData._id;
     const name = roomData.name;
     const capacity: number = roomData.capacity;
     const camera: Array<ICameraData> = roomData.camera === undefined ? [] : roomData.camera;
@@ -74,12 +74,13 @@ export function Room(roomData: IRoomInfo) {
     let numberPeople: number = 0;
     let date: Date | null = null;
 
-    const [open, setOpen] = useState(false);
-    const [confirmLoading, setConfirmLoading] = useState(false);
+    // const [open, setOpen] = useState(false);
+    // const [confirmLoading, setConfirmLoading] = useState(false);
 
     const publish = usePub();
 
     useEffect(() => {
+        // setImages(initialImages);
         retrieveData();
         if (camera.length > 0) {
             retrieveScaleImages();
@@ -97,7 +98,7 @@ export function Room(roomData: IRoomInfo) {
             .catch((e: any) => {
                 console.log(e);
                 console.log(e.response.status);
-                if (e.response && e.response.status == 401) {
+                if (e.response && e.response.status === 401) {
                     publish('logout', {});
                 }
             })
@@ -114,12 +115,10 @@ export function Room(roomData: IRoomInfo) {
                         const imageObjectURL = URL.createObjectURL(response.data);
                         objectURLImages.push(imageObjectURL);
                         // setImage(imageObjectURL);
-                        // console.log(imageObjectURL)
                     })
                     .catch((e: any) => {
                         objectURLImages.push('')
-                        console.log(e);
-                        if (e.response && e.response.status == 401) {
+                        if (e.response && e.response.status === 401) {
                             publish('logout', {});
                         }
                     });
@@ -135,16 +134,13 @@ export function Room(roomData: IRoomInfo) {
             camera.map(async (cam: ICameraData) => {
                 await RoomService.getScaleImageRoom(_id, cam.camera_id, 0.25)
                     .then((response: any) => {
-                        // const imageBlob = response.data;
-                        console.log(response);
                         const imageObject = response.data as ImageResponse;
                         fetchImages.push(imageObject);
                     })
                     .catch((e: any) => {
                         let emptyObject = {extension: 'jpg', image_base64: '', width: 0, height: 0} as ImageResponse;
                         fetchImages.push(emptyObject);
-                        console.log(e);
-                        if (e.response && e.response.status == 401) {
+                        if (e.response && e.response.status === 401) {
                             publish('logout', {});
                         }
                     });
@@ -160,7 +156,7 @@ export function Room(roomData: IRoomInfo) {
                 dispatch(removeRoom(roomData));
             })
             .catch((e: any) => {
-                if (e.response && e.response.status == 401) {
+                if (e.response && e.response.status === 401) {
                     publish('logout', {});
                 }
                 message.error(`Could not delete room cause ${e.response?.data.message}`);
@@ -180,6 +176,12 @@ export function Room(roomData: IRoomInfo) {
         numberPeople = series[series.length - 1].number_people;
         distribution = series[series.length - 1].distribution;
         date = new Date(series[series.length - 1].timestamp);
+    }
+
+    if (images.length < camera.length) {
+        for (let i=images.length; i < camera.length; i++) {
+            images.push({extension: 'jpg', image_base64: '', width: 0, height: 0} as ImageResponse);
+        }
     }
 
     return (
@@ -246,7 +248,7 @@ export function Room(roomData: IRoomInfo) {
 
                     <UpdateRoom {...roomData} />,
 
-                    <Popconfirm
+                    <Popconfirm disabled={currentUser!.role.includes("admin")}
                         title="Delete the task"
                         description="Are you sure to delete this task?"
                         onConfirm={confirm}
@@ -269,10 +271,11 @@ export function Room(roomData: IRoomInfo) {
 
                 <Card.Grid
                     style={numberPeople / capacity < 0.5 ? gridContentStyle : gridWarningContentStyle}>
-                    <Progress percent={numberPeople/capacity} percentPosition={{ align: 'center', type: 'inner' }}
-                    format={() => numberPeople + " / "  + capacity}>
+                    {/*<Progress percent={numberPeople/capacity} percentPosition={{ align: 'center', type: 'inner' }}*/}
+                    {/*format={() => numberPeople + " / "  + capacity}>*/}
 
-                    </Progress>
+                    {/*</Progress>*/}
+                    {numberPeople} / {capacity}
                 </Card.Grid>
 
                 <Card.Grid
