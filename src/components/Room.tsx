@@ -248,9 +248,9 @@ export function Room(roomData: IRoomInfo) {
 
                     <UpdateRoom {...roomData} />,
 
-                    <Popconfirm disabled={currentUser!.role.includes("admin")}
+                    <Popconfirm disabled={!currentUser!.role.includes("admin")}
                         title="Delete the task"
-                        description="Are you sure to delete this task?"
+                        description="Are you sure to delete this room?"
                         onConfirm={confirm}
                         onCancel={cancel}
                         okText="Yes"
