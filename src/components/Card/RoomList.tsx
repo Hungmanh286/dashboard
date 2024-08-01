@@ -1,12 +1,12 @@
 import {Col, Divider, Row, Flex} from 'antd';
 
-import {useAppDispatch, useAppSelector} from "../store/hooks";
+import {useAppDispatch, useAppSelector} from "../../store/hooks";
 import {useState, useEffect} from "react";
-import RoomService from "../services/room.service";
-import {IRoomInfo, IRoomData} from "../types/IRoomData.type";
+import RoomService from "../../services/room.service";
+import {IRoomInfo, IRoomData} from "../../types/IRoomData.type";
 import {Room} from "./Room"
-import {initRooms} from "../store/roomSlice";
-import {usePub} from "../common/EventBus";
+import {initRooms} from "../../store/roomSlice";
+import {usePub} from "../../common/EventBus";
 
 
 export function RoomList() {
@@ -48,11 +48,7 @@ export function RoomList() {
     });
 
     return (
-        <div style={{
-            padding: '25px'
-        }}>
-            <Divider orientation="left" style={{fontWeight: 'bold', fontSize: 'large'}}>Dashboard</Divider>
-
+        <div>
             <Flex wrap gap="large">
                 {listItem}
             </Flex>

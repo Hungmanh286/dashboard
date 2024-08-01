@@ -1,14 +1,14 @@
 import React, {ErrorInfo, useEffect, useState} from 'react'
-import {useAppSelector, useAppDispatch} from '../store/hooks'
+import {useAppSelector, useAppDispatch} from '../../store/hooks'
 import {Card, message, Carousel, Image, Popconfirm, Progress} from 'antd'
 import {EditOutlined, SettingOutlined, DeleteOutlined} from '@ant-design/icons';
-import {ICameraData, IFrameData, IRoomInfo, ImageResponse} from "../types/IRoomData.type";
-import RoomService from "../services/room.service";
+import {ICameraData, IFrameData, IRoomInfo, ImageResponse} from "../../types/IRoomData.type";
+import RoomService from "../../services/room.service";
 import {RoomChart} from "./RoomChart";
 import type {PopconfirmProps} from 'antd';
-import {removeRoom} from "../store/roomSlice";
+import {removeRoom} from "../../store/roomSlice";
 import {UpdateRoom} from "./UpdateRoom";
-import {usePub} from "../common/EventBus";
+import {usePub} from "../../common/EventBus";
 
 const gridStyle: React.CSSProperties = {
     width: '100%',

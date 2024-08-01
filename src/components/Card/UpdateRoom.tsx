@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 
-import {ICameraData, IRoomInfo} from "../types/IRoomData.type";
-import RoomService from "../services/room.service";
+import {ICameraData, IRoomInfo} from "../../types/IRoomData.type";
+import RoomService from "../../services/room.service";
 
 
 import {
@@ -18,8 +18,8 @@ import {
 } from 'antd';
 import {CloseOutlined, EditOutlined, PlusOutlined} from '@ant-design/icons';
 import axios from "axios";
-import {useAppDispatch, useAppSelector} from "../store/hooks";
-import {updateRoom} from "../store/roomSlice";
+import {useAppDispatch, useAppSelector} from "../../store/hooks";
+import {updateRoom} from "../../store/roomSlice";
 
 const {Option} = Select;
 
@@ -275,6 +275,7 @@ export const UpdateRoom = (room_: IRoomInfo) => {
                                             >
                                                 <InputNumber/>
                                             </Form.Item>
+
                                         </Card>
                                     ))}
                                     <Form.Item>

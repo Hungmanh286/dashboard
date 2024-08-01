@@ -4,9 +4,9 @@ import {Line, LineConfig} from '@ant-design/charts';
 import dayjs from 'dayjs';
 import {format} from 'fecha';
 
-import {ICameraData, IFrameData, IRoomData, IRoomInfo} from "../types/IRoomData.type";
-import RoomService from "../services/room.service";
-import {usePub} from "../common/EventBus";
+import {ICameraData, IFrameData, IRoomData, IRoomInfo} from "../../types/IRoomData.type";
+import RoomService from "../../services/room.service";
+import {usePub} from "../../common/EventBus";
 
 
 
