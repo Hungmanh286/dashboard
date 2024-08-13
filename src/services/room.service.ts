@@ -2,8 +2,8 @@ import http from '../http-common'
 import {IRoomData, IRoomInfo, IFrameData, ImageResponse} from "../types/IRoomData.type";
 import authHeader from "./auth-header";
 
-const getAllRoom = () => {
-    return http.get<Array<IRoomInfo>>('/room/all', {headers: authHeader()})
+const getAllRoom = (limit: number = 30) => {
+    return http.get<Array<IRoomInfo>>(`/room/all?limit=${limit}`, {headers: authHeader()})
 }
 
 const getRoomById = (id: string) => {

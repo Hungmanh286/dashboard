@@ -11,6 +11,7 @@ export interface ICameraData {
     camera_width: number
     camera_height: number
     encode: string
+    split_line: number[][]
 }
 
 export interface IRoomInfo {
