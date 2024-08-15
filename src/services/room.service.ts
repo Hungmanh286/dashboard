@@ -2,8 +2,15 @@ import http from '../http-common'
 import {IRoomData, IRoomInfo, IFrameData, ImageResponse} from "../types/IRoomData.type";
 import authHeader from "./auth-header";
 
-const getAllRoom = (limit: number = 30) => {
-    return http.get<Array<IRoomInfo>>(`/room/all?limit=${limit}`, {headers: authHeader()})
+const getAllRoom = (sort?: string, skip?: number, limit?: number) => {
+    let query = "?";
+    if (sort)
+        query += `&sort=${sort}`;
+    if (skip)
+        query += `&skip=${skip}`;
+    if (limit)
+        query += `&limit=${limit}`;
+    return http.get<Array<IRoomInfo>>(`/room/all${query}`, {headers: authHeader()})
 }
 
 const getRoomById = (id: string) => {
@@ -22,8 +29,19 @@ const deleteRoom = (id: string) => {
     return http.delete<any>(`/room/delete/${id}`, {headers: authHeader()})
 }
 
-const getAnalyzedRooms = () => {
-    return http.get<IRoomData[]>('/room/analyzed', {headers: authHeader()})
+const getAnalyzedAllRoom = () => {
+    return http.get<IRoomData[]>('/room/analyzed/all', {headers: authHeader()})
+}
+
+const getLastAnalyzedAllRoom = (sort?: string, skip?: number, limit?: number) => {
+    let query = "?";
+    if (sort)
+        query += `&sort=${sort}`;
+    if (skip)
+        query += `&skip=${skip}`;
+    if (limit)
+        query += `&limit=${limit}`;
+    return http.get<IRoomData[]>(`/room/analyzed/last/all${query}`, {headers: authHeader()})
 }
 
 const getLastAnalyzedRooms = async (id: string) => {
@@ -57,7 +75,7 @@ const getScaleImageRoom = async (id: string, cam_id: string, scale?: number, wid
     if (width) query += `&width=${scale}`;
     if (height) query += `&height=${scale}`;
 
-    return http.get<ImageResponse>(`/room/image/${id}/${cam_id}`, {headers: authHeader()})
+    return http.get<ImageResponse>(`/room/image/${id}/${cam_id}${query}`, {headers: authHeader()})
 }
 
 const RoomService = {
@@ -66,7 +84,8 @@ const RoomService = {
     createRoom,
     updateRoom,
     deleteRoom,
-    getAnalyzedRooms,
+    getAnalyzedAllRoom,
+    getLastAnalyzedAllRoom,
     getLastAnalyzedRooms,
     getImageRoom,
     getScaleImageRoom,
