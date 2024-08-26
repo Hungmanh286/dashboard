@@ -1,13 +1,18 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 import RoomService from "../../services/room.service";
 import { IRoomInfo } from "../../types/IRoomData.type";
 import { initRooms } from "../../store/roomSlice";
 import { usePub } from "../../common/EventBus";
+import { Table, Input, Space } from 'antd';
 import { Table1 } from './Row';
-import "../Table/Table.css";
+
+const { Search } = Input;
 
 const Dashboard = () => {
+  const [seriesData, setSeriesData] = useState<Array<{ roomId: string, series: Array<{ number_people: number; distribution: number }> }>>([]);
+  const [searchText, setSearchText] = useState<string>('');
+  const [filteredRooms, setFilteredRooms] = useState<IRoomInfo[]>([]);
   const rooms: Array<IRoomInfo> = useAppSelector((state) => state.rooms.rooms);
   const dispatch = useAppDispatch();
   const publish = usePub();
@@ -16,10 +21,25 @@ const Dashboard = () => {
     retrieveRooms();
   }, []);
 
+  useEffect(() => {
+    // Filter rooms based on search text
+    const filtered = rooms.filter(room => room.name.toLowerCase().includes(searchText.toLowerCase()));
+    setFilteredRooms(filtered);
+  }, [searchText, rooms]);
+
   const retrieveRooms = () => {
     RoomService.getAllRoom()
-      .then((response: any) => {
+      .then(async (response: any) => {
         dispatch(initRooms(response.data));
+        const seriesResponses = await Promise.all(
+          response.data.map((room: IRoomInfo) =>
+            RoomService.getLastAnalyzedRooms(room._id ?? "").then((res: any) => ({
+              roomId: room._id,
+              series: res.data
+            }))
+          )
+        );
+        setSeriesData(seriesResponses);
       })
       .catch((e: any) => {
         console.log(e);
@@ -29,22 +49,58 @@ const Dashboard = () => {
       });
   };
 
+  const columns = [
+    {
+      title: 'Room',
+      dataIndex: 'name',
+      key: 'name',
+      width : 150,
+      render: (_: any, room: IRoomInfo) => {
+        const series = seriesData.find(data => data.roomId === room._id)?.series || [];
+        const tableData = Table1({ roomData: room, series });
+        return tableData.name;
+      },
+    },
+    {
+      title: 'Total',
+      dataIndex: 'total',
+      key: 'total',
+      width: 200,
+      render: (_: any, room: IRoomInfo) => {
+        const series = seriesData.find(data => data.roomId === room._id)?.series || [];
+        const tableData = Table1({ roomData: room, series });
+        return tableData.total;
+      },
+    },
+    {
+      title: 'Distribution',
+      dataIndex: 'distribution',
+      key: 'distribution',
+      width : 200,
+      render: (_: any, room: IRoomInfo) => {
+        const series = seriesData.find(data => data.roomId === room._id)?.series || [];
+        const tableData = Table1({ roomData: room, series });
+        return tableData.distribution;
+      },
+    },
+  ];
+
   return (
     <div>
-      <table className="custom-table">
-        <thead>
-          <tr>
-            <th>Room</th>
-            <th>Total</th>
-            <th>Distribution</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rooms.map((room: IRoomInfo) => (
-            <Table1 key={room._id} roomData={room} />
-          ))}
-        </tbody>
-      </table>
+      <Space style={{ marginBottom: 16 }}>
+        <Search
+          placeholder="Search rooms"
+          onSearch={(value) => setSearchText(value)}
+          onChange={(e) => setSearchText(e.target.value)}
+          style={{ width: 200 }}
+        />
+      </Space>
+      <Table
+        columns={columns}
+        dataSource={filteredRooms}
+        rowKey="_id"
+        pagination={false}
+      />
     </div>
   );
 };
