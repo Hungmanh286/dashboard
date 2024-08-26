@@ -15,16 +15,24 @@ import {
     Select,
     Card,
     Space, Popconfirm, PopconfirmProps,
+    Descriptions
 } from 'antd';
 import {CloseOutlined, EditOutlined, PlusOutlined} from '@ant-design/icons';
 import axios from "axios";
 import {useAppDispatch, useAppSelector} from "../../store/hooks";
 import {updateRoom} from "../../store/roomSlice";
+import DrawLine from "./DrawLine";
 
 const {Option} = Select;
 
+type Point = {
+    x: number;
+    y: number;
+}
+
 export const UpdateRoom = (room_: IRoomInfo) => {
     const dispatch = useAppDispatch();
+
     const {user: currentUser} = useAppSelector((state) => state.auth);
 
     const room_id = room_._id == null ? '' : room_._id.toString();
@@ -32,15 +40,43 @@ export const UpdateRoom = (room_: IRoomInfo) => {
     let [allowedUpdate, setAllowedUpdate] = useState<boolean>(false);
     const [open, setOpen] = useState<boolean>(false);
 
-    const [form] = Form.useForm<IRoomInfo>();
-
     const [room, setRoom] = useState<IRoomInfo>(room_);
+
+    const [canvasOpen, setCanvasOpen] = useState<boolean>(false);
+    const [url, setUrl] = useState<string>('');
+    const [coordinates, setCoordinates] = useState<{start: Point, end: Point}>({
+        start: {x: 0, y: 0},
+        end: {x: 0, y: 0},
+    });
+    const [messageApi, contextHolder] = message.useMessage();
+    const [na, setNa] = useState<boolean>(false);
+    const [start, setStart] = useState<Point>({x: 0, y: 0})
+    const [end, setEnd] = useState<Point>({x: 0, y: 0})
     let cameraIds: string[] = []
     if (room_.camera !== undefined) {
         cameraIds = room_.camera.map((cam: ICameraData) => {
             return cam.camera_id;
         })
     }
+
+    const item = [
+        {
+            key: '1',
+            label: "Start",
+            children: `[${(coordinates.start.x/1000).toFixed(2)}, ${(coordinates.start.y/500).toFixed(2)}]`
+        },
+        {
+            key: '2',
+            label: 'End',
+            children: `[${(coordinates.end.x/1000).toFixed(2)}, ${(coordinates.end.y/500).toFixed(2)}]`
+        }
+    ]
+    const handleLineDraw = (start:Point, end: Point) => {
+        setCoordinates({start, end});
+    }
+
+    const [form] = Form.useForm<IRoomInfo>();
+
     const [submitted, setSubmitted] = useState<boolean>(false);
 
     const handleWatchForm = Form.useWatch((values) => {
@@ -59,11 +95,11 @@ export const UpdateRoom = (room_: IRoomInfo) => {
 
     useEffect(() => {
         form.setFieldsValue(room);
+        getImage();
     }, []);
 
     const cancel: PopconfirmProps['onCancel'] = (e) => {
     };
-
 
     const onFinish = () => {
         RoomService.updateRoom(room_id, room)
@@ -83,6 +119,22 @@ export const UpdateRoom = (room_: IRoomInfo) => {
             });
     };
 
+    const getImage = () => {
+        RoomService.getImageRoom(room_id, cameraIds[0])
+        .then((response: any) => {
+            console.log(response);
+            const imageObjectURL = URL.createObjectURL(response.data)
+            setUrl(imageObjectURL)
+        })
+        .catch((e: any) => {
+            console.log(e);
+            console.log(e.response.status);
+            if (e.response && e.response.status === 401) {
+                console.log(e.response.data)
+            }
+        })
+    }
+
     const onFinishFailed = () => {
         // console.log('Submit failed!');
     };
@@ -92,7 +144,27 @@ export const UpdateRoom = (room_: IRoomInfo) => {
     };
 
     const showModal = () => {
+        let lineEndpoints: number[][][] = []
+        if (room_.camera !== undefined) {
+            lineEndpoints = room_.camera.map((cam: ICameraData) => {
+                return cam.split_line;
+            })
+        }
+        if (lineEndpoints[0][0] === undefined){
+            setNa(true);
+            console.log('nan')
+        }else{
+            setStart({x: lineEndpoints[0][0][0], y:lineEndpoints[0][0][1]})
+            setEnd({x:lineEndpoints[0][1][0], y:lineEndpoints[0][1][1]})
+        }
         setOpen(true);
+    };
+
+    const error = () => {
+        messageApi.open({
+            type:'error',
+            content:"Two endpoints can't be similar!",
+        });
     };
 
     const handleCancel = () => {
@@ -102,6 +174,26 @@ export const UpdateRoom = (room_: IRoomInfo) => {
     const handleOk = () => {
         setOpen(false);
     };
+
+    const showCanvas = () => {
+        let s = {x: start.x * 1000, y: start.y * 500};
+        let e = {x: end.x * 1000, y: end.y * 500};
+        setCoordinates({start: s, end: e})
+        setCanvasOpen(true);
+    }
+
+    const canvasOk = () => {
+        setStart({x: Number((coordinates.start.x /1000).toFixed(2)), y: Number((coordinates.start.y /500).toFixed(2))})
+        setEnd({x: Number((coordinates.end.x / 1000).toFixed(2)), y: Number((coordinates.end. y /500).toFixed(2))})
+        setNa(false);
+        setCanvasOpen(false);
+        console.log('coordinate', coordinates)
+        console.log('start, end', start, end)
+    }
+
+    const canvasCancel = () => {
+        setCanvasOpen(false);
+    }
 
 
     return (
@@ -276,6 +368,42 @@ export const UpdateRoom = (room_: IRoomInfo) => {
                                                 <InputNumber/>
                                             </Form.Item>
 
+                                            <Form.Item
+                                                label="Split line"
+                                                name={[field.name, 'split_line']}
+                                                rules={[
+                                                    {
+                                                        required: false, message: "Please enter the normalized coordinate of two point!"
+                                                    }
+                                                ]}
+                                            >
+                                                <Input value={`[${!na ? start.x:''}, ${!na ? start.y: ''}], [${!na ? end.x: ''}, ${!na ? end.y: ''}]`}/>
+                                                <Button
+                                                type="primary"
+                                                onClick={showCanvas}>
+                                                    Edit
+                                                </Button>
+                                                <Modal
+                                                title={<p>Room {room_name}</p>}
+                                                open={canvasOpen}
+                                                onCancel={canvasCancel}
+                                                onOk={(coordinates.start.x === coordinates.end.x && coordinates.start.y === coordinates.end.y) ? error : canvasOk}
+                                                style={{top:0, left:0}}
+                                                centered
+                                                width={1920}>
+                                                    <div>
+                                                        <div
+                                                        style={{display: 'inline-block'}}>
+                                                            {contextHolder}
+                                                            <DrawLine onLineDraw={handleLineDraw} url={url} init={{start: coordinates.start, end: coordinates.end}}/>
+                                                        </div>
+                                                        <div
+                                                        style={{display:'inline-block'}}>
+                                                            <Descriptions title="Coordinate of two endpoints" items={item}/>
+                                                        </div>
+                                                    </div>
+                                                </Modal>
+                                            </Form.Item>
                                         </Card>
                                     ))}
                                     <Form.Item>
@@ -314,7 +442,6 @@ export const UpdateRoom = (room_: IRoomInfo) => {
                                 </Button>
                             </Space>
                         </Form.Item>
-
                     </Form>
                 </Card>
             </Modal>
