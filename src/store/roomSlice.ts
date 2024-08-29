@@ -1,5 +1,4 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit"
-import type {RootState, AppDispatch} from "./store"
 import {IRoomInfo, IRoomData, ICameraData} from "../types/IRoomData.type";
 
 // Define a type for the room slice state
@@ -13,7 +12,7 @@ const initialState: RoomState = {
 } as RoomState
 
 export const roomSlice = createSlice({
-    name: 'counter',
+    name: 'room',
     initialState,
     reducers: {
         addRoom: (state, action: PayloadAction<IRoomInfo>) => {
@@ -22,7 +21,7 @@ export const roomSlice = createSlice({
             // which detects changes to a "draft state" and produces a brand new
             // immutable state based off those changes.
             // Also, no return statement is required from these functions.
-            state.rooms.push(action.payload)
+            state.rooms.push(action.payload);
         },
         removeRoom: (state, action: PayloadAction<IRoomInfo>) => {
             let index = state.rooms.findIndex((room) => {
@@ -32,7 +31,7 @@ export const roomSlice = createSlice({
             state.rooms.splice(index, 1);
         },
         initRooms: (state, action: PayloadAction<IRoomInfo[]>) => {
-            state.rooms = action.payload
+            state.rooms = action.payload;
         },
         updateRoom: (state, action: PayloadAction<IRoomInfo>) => {
             let index = state.rooms.findIndex((room) => {
@@ -46,4 +45,4 @@ export const roomSlice = createSlice({
 
 export const {updateRoom, addRoom, removeRoom, initRooms} = roomSlice.actions;
 
-export default roomSlice.reducer
+export default roomSlice.reducer;

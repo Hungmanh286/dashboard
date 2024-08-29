@@ -11,6 +11,7 @@ export interface UserLogin {
 }
 
 export interface UserBase {
+    _id?: string | null
     username: string,
     full_name: string,
     role: string,
