@@ -29,3 +29,18 @@ const deleteUser = (id: string) => {
 const getUserById = (id: string) => {
     return http.get<UserBase>(`/user/${id}`, {headers: authHeader()})
 }
+
+const readUserMe = () => {
+    return http.get<UserBase>(`/user/me`, {headers: authHeader()})
+}
+
+const UserService = {
+    getAllUser,
+    createUser,
+    updateUser,
+    deleteUser,
+    getUserById,
+    readUserMe,
+}
+
+export default UserService;

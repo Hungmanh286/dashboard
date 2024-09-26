@@ -13,6 +13,7 @@ import {Home} from "./components/Home";
 import {Login} from "./components/Login";
 import {logout} from "./store/authSlice";
 import {useSub} from "./common/EventBus";
+import Profile from './components/Profile';
 
 const {Header, Content, Footer} = Layout;
 type MenuItem = Required<MenuProps>['items'][number];
@@ -131,7 +132,7 @@ function App() {
                 style={{
                     position: 'sticky',
                     top: 0,
-                    zIndex: 1,
+                    zIndex: 1000,
                     width: '100%',
                     display: 'flex',
                     alignItems: 'center',
@@ -161,6 +162,7 @@ function App() {
                         <Route path="/home" element={<Home/>}/>
                         <Route path="/add" element={<AddRoom/>}/>
                         <Route path="/login" element={<Login/>}/>
+                        <Route path ="/user" element = {<Profile/>}/>
                     </Routes>
                 </div>
             </Content>

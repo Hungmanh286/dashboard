@@ -132,7 +132,7 @@ export function Room(roomData: IRoomInfo) {
         const fetchImages: ImageResponse[] = [];
         await Promise.all(
             camera.map(async (cam: ICameraData) => {
-                await RoomService.getScaleImageRoom(_id, cam.camera_id, 0.25)
+                await RoomService.getScaleImageRoom(_id, cam.camera_id, 0.3)
                     .then((response: any) => {
                         const imageObject = response.data as ImageResponse;
                         fetchImages.push(imageObject);
@@ -289,7 +289,7 @@ export function Room(roomData: IRoomInfo) {
                             return (
                                 <Card.Grid style={{
                                     textAlign: 'center',
-                                    width: `${((100 - 33) / camera.length).toString() + '%'}`,
+                                    width: `${((100-33) / camera.length).toString() + '%'}`,
                                 }}>
                                     <a
                                         href={"https://" + cam.camera_ip}
@@ -302,7 +302,7 @@ export function Room(roomData: IRoomInfo) {
                         }) : (
                             <Card.Grid style={{
                                 textAlign: 'center',
-                                width: `${(100 - 33).toString() + '%'}`,
+                                width: `${(100-33).toString() + '%'}`,
                                 color: "red"
                             }}>
                                 No camera

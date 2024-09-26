@@ -49,7 +49,7 @@ export function RoomList() {
 
     return (
         <div>
-            <Flex wrap gap="large">
+            <Flex wrap gap="large" style={{justifyContent :'center'}}>
                 {listItem}
             </Flex>
         </div>
