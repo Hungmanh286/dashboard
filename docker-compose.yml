@@ -7,6 +7,6 @@ services:
     image: 'roomdashboard:1.0.0'
     environment:
       - PORT=9091
-      - REACT_APP_API_URL=http://0.0.0.0:8656/api/counting/v1
+      - REACT_APP_API_URL=http://112.137.129.253:8656/api/counting/v1
     ports:
       - "9091:9091"
